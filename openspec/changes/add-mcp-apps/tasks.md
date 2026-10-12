@@ -34,8 +34,8 @@
   results and limitations.
 - [x] 4.2 Review compatibility, security, generated assets, and the complete diff, then
   resolve confirmed findings.
-- [ ] 4.3 Open the pull request with screenshot links, the proposed version, and verification
-  evidence.
+- [x] 4.3 Open the pull request with screenshot links, the proposed version, and verification
+  evidence: [pull request #7](https://github.com/lennrt/tempestkeep/pull/7).
 
 ## Verification evidence
 
