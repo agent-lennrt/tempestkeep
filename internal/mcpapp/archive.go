@@ -111,7 +111,7 @@ type BackfillOut struct {
 // registers with any archive at all, keeping coverage visibility in read-only
 // deployments where the write tools below are absent.
 func registerArchiveStatusTool(srv *mcp.Server, st *store.Store) {
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "archive_status",
 		Title:       "Archive status",
 		Description: "Return row count, coverage, newest-row age, backfill state, and the ten largest gaps. This operation is read-only.",

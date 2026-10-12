@@ -309,7 +309,7 @@ func registerHistoryTools(srv *mcp.Server, st *store.Store) {
 }
 
 func registerCalendarTools(srv *mcp.Server, st *store.Store) {
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "this_day_in_history",
 		Title:       "This day in history",
 		Description: "Return this calendar day for each archived year. Results include temperature (°F), rain (in), gusts (mph), and cross-year records. date accepts MM-DD or YYYY-MM-DD and defaults to today.",
@@ -342,7 +342,7 @@ func registerCalendarTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "period_summary",
 		Title:       "Monthly / yearly summary",
 		Description: "Group archive data by calendar month or year. Results include temperature (°F), rain (in), gusts (mph), observed days, and rainy days. The default range is the full archive.",
@@ -372,7 +372,7 @@ func registerCalendarTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "wind_rose",
 		Title:       "Wind rose",
 		Description: "Return wind distribution across 16 compass sectors. Each sector includes its share, mean speed, and peak gust in mph. The default range is the full archive.",
@@ -396,7 +396,7 @@ func registerCalendarTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "get_observations",
 		Title:       "Observation series (downsampled)",
 		Description: "Return a bounded, downsampled observation series. Values use °F, inHg, mph, and inches. The default range is 24 hours. max_points defaults to 288 and cannot exceed 2000.",
@@ -446,7 +446,7 @@ func registerCalendarTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "climate_normals",
 		Title:       "Climate normals (12-month table)",
 		Description: "Return archive averages for each calendar month. Results include temperature (°F), rain (in), rainy days, and the number of contributing years.",
@@ -463,7 +463,7 @@ func registerCalendarTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "rain_stats",
 		Title:       "Rainfall statistics",
 		Description: "Return rain totals, rainy days, the wettest day, and the longest dry and wet spells. Coverage gaps end a spell. The default range is the full archive.",
@@ -489,7 +489,7 @@ func registerCalendarTools(srv *mcp.Server, st *store.Store) {
 }
 
 func registerClimateTools(srv *mcp.Server, st *store.Store) {
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "pressure_trend",
 		Title:       "Barometric tendency",
 		Description: "Return the change in station pressure over a trailing window. The default is 3 hours. The accepted range is 1 second through 24 hours.",
@@ -514,7 +514,7 @@ func registerClimateTools(srv *mcp.Server, st *store.Store) {
 		return nil, PressureTrendOut{PressureTrend: *trend}, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "climate_indices",
 		Title:       "Climate threshold-day indices",
 		Description: "Count frost, ice, summer, hot, and tropical-night days. Thresholds use °F and can be changed. The default range is the full archive. Set yearly to include annual counts.",
@@ -551,7 +551,7 @@ func registerClimateTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "climatology",
 		Title:       "Typical day (hourly climatology)",
 		Description: "Return conditions by local hour. Each hour includes temperature (°F), humidity, wind, and gusts (mph). The default range is the full archive.",
@@ -575,7 +575,7 @@ func registerClimateTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "degree_days",
 		Title:       "Degree-days (heating / cooling / growing)",
 		Description: "Calculate heating, cooling, and growing degree-days in °F-days. Heating and cooling bases default to 65°F. The growing base defaults to 50°F and its cap to 86°F. Set monthly for monthly results.",
@@ -617,7 +617,7 @@ func registerClimateTools(srv *mcp.Server, st *store.Store) {
 }
 
 func registerSensorTools(srv *mcp.Server, st *store.Store) {
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "lightning_activity",
 		Title:       "Lightning activity",
 		Description: "Return strike counts, storm days, distance, busiest day, and storm-free spells. Distances use miles. Coverage gaps end a spell. The default range is the full archive.",
@@ -643,7 +643,7 @@ func registerSensorTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "solar_stats",
 		Title:       "Solar and UV statistics",
 		Description: "Return solar, UV, illuminance, and insolation statistics. Insolation estimates use each solar reading's reported duration. The default range is the full archive.",
@@ -669,7 +669,7 @@ func registerSensorTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "wind_stats",
 		Title:       "Wind speed statistics",
 		Description: "Return mean wind, peak gust, peak sustained wind, the windiest day, and calm share. Speeds use mph. The default range is the full archive.",
@@ -693,7 +693,7 @@ func registerSensorTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "comfort_stats",
 		Title:       "Human-comfort extremes",
 		Description: "Return heat-index, wind-chill, and dew-point extremes in °F. Calculations use matching 15-minute sensor means; missing required readings omit the affected value. The default range is the full archive.",
@@ -719,7 +719,7 @@ func registerSensorTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "sensor_health",
 		Title:       "Sensor health diagnostic",
 		Description: "Return count, coverage, last reading, and stale state for continuous sensors. A sensor is stale after one hour. Results also include the battery range. The default range is the full archive.",
@@ -743,7 +743,7 @@ func registerSensorTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "pressure_stats",
 		Title:       "Barometric pressure statistics",
 		Description: "Return station-pressure mean, extremes, and daily changes in inHg. Changes compare consecutive observed days only. The default range is the full archive.",
@@ -771,7 +771,7 @@ func registerSensorTools(srv *mcp.Server, st *store.Store) {
 }
 
 func registerTrendAndQueryTools(srv *mcp.Server, st *store.Store) {
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "temperature_spells",
 		Title:       "Heat waves and cold snaps",
 		Description: "Return the longest heat wave and cold snap. Heat defaults to at least 90°F. Cold defaults to at most 32°F. Coverage gaps end a run.",
@@ -795,7 +795,7 @@ func registerTrendAndQueryTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "temperature_trend",
 		Title:       "Warming / cooling trend",
 		Description: "Fit a temperature trend from monthly anomalies across the full archive. Results include °F per decade, R², and the largest anomalies. A short archive returns no slope.",
@@ -815,7 +815,7 @@ func registerTrendAndQueryTools(srv *mcp.Server, st *store.Store) {
 		return nil, out, nil
 	})
 
-	mcp.AddTool(srv, &mcp.Tool{
+	addAppTool(srv, &mcp.Tool{
 		Name:        "query_sql",
 		Title:       "Read-only SQL query",
 		Description: "Run one SELECT or WITH SELECT against the read-only archive. Values use SI units. Query text is limited to 64 KiB. max_rows defaults to 100 and cannot exceed 1000.",

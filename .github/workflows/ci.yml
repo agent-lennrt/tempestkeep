@@ -35,6 +35,30 @@ jobs:
       - name: Validate specifications and active changes
         run: npm run spec:check
 
+  mcp-apps:
+    name: MCP Apps browser checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.19.0"
+          cache: npm
+
+      - name: Install locked development tools
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Check the embedded app matches its source
+        run: npm run app:check
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Test the sandboxed app with the official host bridge
+        run: npm run app:test
+
   platforms:
     name: Native tests (${{ matrix.os }})
     strategy:

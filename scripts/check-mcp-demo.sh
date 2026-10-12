@@ -11,7 +11,7 @@ NO_COLOR=1 TEMPEST_TOKEN=synthetic-unused-token TEMPEST_READ_ONLY=true \
 	"$repo_root/scripts/demo-agent.sh" -pace 0 -hold 0 >"$transcript"
 
 for expected in \
-	'29 tools / 2 resources / 3 prompts discovered' \
+	'29 tools / 29 resources / 3 prompts discovered' \
 	'0 observations stored' \
 	'has_more=true' \
 	'reached the start of history' \

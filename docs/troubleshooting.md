@@ -23,6 +23,21 @@ When you run `tempestkeep mcp` in a terminal, it waits for protocol input.
 It does not display a dashboard. Use `tempestkeep now` for the dashboard.
 Do not redirect stderr into stdout in an MCP launch command.
 
+## MCP tools work but no app appears
+
+Make sure that your host version supports the MCP Apps extension. Reconnect after
+updating TempestKeep so the host refreshes tool discovery. Some hosts display
+an app only after you expand its tool result. Ordinary tool output remains
+available when the host does not render apps.
+
+UI resources follow tool availability. A missing token removes live-only tools,
+and a missing archive removes archive queries. The archive write tools do not
+have app views. The optional plugin does not add app rendering to a host.
+
+If refresh fails, inspect the host's tool-call permissions or ask the agent to
+repeat the query. Refresh reads current data and does not collect new history.
+See the [MCP Apps guide](mcp-apps.md#troubleshooting) for view-specific problems.
+
 ## Configuration changes do not take effect
 
 Restart the process after changing its environment or `.env`. Commands read

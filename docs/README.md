@@ -9,6 +9,8 @@ building, setup, collection, MCP operation, privacy, and verification.
   displays, exports, and configuration precedence.
 - [`tempestkeep mcp` guide](mcp.md): MCP inputs,
   capabilities, limits, and startup behavior.
+- [MCP Apps guide](mcp-apps.md): interactive views, host compatibility, privacy,
+  frontend development, and synthetic screenshot reproduction.
 - [Query guide](querying.md): working tool and SQL examples, units, timezones,
   aggregation, and missing observations.
 - [Troubleshooting](troubleshooting.md): connection, configuration, collection,
@@ -31,6 +33,9 @@ building, setup, collection, MCP operation, privacy, and verification.
   defaults, CI repairs, and evidence requirements.
 - [Reliability and specification ADR](adr/0005-reliability-and-specifications.md):
   checkpoint, API, query, backfill, and specification workflow decisions.
+
+- [MCP Apps ADR](adr/0006-mcp-apps.md): embedded views, protocol compatibility,
+  browser boundaries, and the proposed 0.3.0 release.
 
 ## Review correctness and security
 
@@ -61,7 +66,9 @@ building, setup, collection, MCP operation, privacy, and verification.
 The four `.tape` files use the local mock API. They do not need a station or
 token.
 
-- [MCP recording guide](demo.md): replay, smoke check, and record the lead demo.
+- [MCP recording guide](demo.md): replay, smoke check, and record the tool demo.
+- [MCP Apps screenshots](mcp-apps.md#reproduce-the-screenshots): capture the
+  embedded app with Playwright and synthetic data.
 - [CLI and MCP demo](demo.tape)
 - [Setup demo](setup.tape)
 - [MCP agent demo](agent.tape)

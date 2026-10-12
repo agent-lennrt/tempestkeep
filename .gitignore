@@ -15,8 +15,9 @@
 /coverage.out
 /scorecard-results.sarif
 
-# Development-only OpenSpec dependencies
+# Development-only specification and MCP Apps tooling
 /node_modules/
+/dist/playwright/
 
 # OS
 .DS_Store

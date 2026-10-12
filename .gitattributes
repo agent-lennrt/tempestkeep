@@ -10,6 +10,11 @@
 *.yml text eol=lf
 *.txt text eol=lf
 *.tape text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+internal/mcpapp/ui/app.html linguist-generated=true
 .env.example text eol=lf
 Makefile text eol=lf
 go.mod text eol=lf

@@ -111,9 +111,10 @@ func appendOnlyWrite() *mcp.ToolAnnotations {
 // ---- tool registration ------------------------------------------------------
 
 func registerTools(srv *mcp.Server, live *liveSource, st *store.Store) {
+	srv.AddReceivingMiddleware(appToolsMiddleware)
 	// current_conditions: available whenever we have a live source or an archive.
 	if live != nil || st != nil {
-		mcp.AddTool(srv, &mcp.Tool{
+		addAppTool(srv, &mcp.Tool{
 			Name:        "current_conditions",
 			Title:       "Current conditions",
 			Description: "Return the latest conditions, preferring live data when available. An archive supplies fallback data; matching recent pressure history can add a normalized three-hour pressure rate.",
@@ -157,7 +158,7 @@ func registerTools(srv *mcp.Server, live *liveSource, st *store.Store) {
 
 	// Live tools: need the REST API (a token).
 	if live != nil {
-		mcp.AddTool(srv, &mcp.Tool{
+		addAppTool(srv, &mcp.Tool{
 			Name:        "list_stations",
 			Title:       "List stations",
 			Description: "List stations and devices available to the configured token. Results include location and timezone.",
@@ -177,7 +178,7 @@ func registerTools(srv *mcp.Server, live *liveSource, st *store.Store) {
 			return nil, out, nil
 		})
 
-		mcp.AddTool(srv, &mcp.Tool{
+		addAppTool(srv, &mcp.Tool{
 			Name:        "forecast",
 			Title:       "Forecast",
 			Description: "Return current, hourly, and daily forecast data. Temperature uses °F and wind uses mph. hours cannot exceed 240. days cannot exceed 10.",
@@ -205,7 +206,7 @@ func registerTools(srv *mcp.Server, live *liveSource, st *store.Store) {
 			return nil, buildForecast(s, f, hours, days), nil
 		})
 
-		mcp.AddTool(srv, &mcp.Tool{
+		addAppTool(srv, &mcp.Tool{
 			Name:        "station_details",
 			Title:       "Station details",
 			Description: "Return station metadata, coordinates, elevation in meters, timezone, and connected devices.",
@@ -232,7 +233,7 @@ func registerTools(srv *mcp.Server, live *liveSource, st *store.Store) {
 
 	// Archive-backed history tools.
 	if st != nil {
-		mcp.AddTool(srv, &mcp.Tool{
+		addAppTool(srv, &mcp.Tool{
 			Name:        "station_info",
 			Title:       "Station & archive info",
 			Description: "Return archive coverage. Include live station metadata only when the archive's device belongs to that station.",
@@ -263,7 +264,7 @@ func registerTools(srv *mcp.Server, live *liveSource, st *store.Store) {
 			return nil, out, nil
 		})
 
-		mcp.AddTool(srv, &mcp.Tool{
+		addAppTool(srv, &mcp.Tool{
 			Name:        "daily_summary",
 			Title:       "Daily summary",
 			Description: "Return daily temperature in °F, rain in inches, and gusts in mph. days defaults to 7 and cannot exceed 366.",
@@ -280,7 +281,7 @@ func registerTools(srv *mcp.Server, live *liveSource, st *store.Store) {
 			return nil, DailySummaryOut{From: localDate(start), To: localDate(end), Days: days}, nil
 		})
 
-		mcp.AddTool(srv, &mcp.Tool{
+		addAppTool(srv, &mcp.Tool{
 			Name:        "records",
 			Title:       "All-time records",
 			Description: "Return archive-wide temperature, wind, pressure, solar, UV, rain, and lightning records.",

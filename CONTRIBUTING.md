@@ -140,6 +140,26 @@ A spelling or link correction does not need a new behavior proposal. Run
 `make docs-check` for such edits. The ADR requirements still apply to public,
 wire, storage, security, and configuration changes.
 
+## MCP Apps frontend
+
+The Go executable embeds the committed HTML bundle. Ordinary Go builds and
+runtime use do not need Node.js. Frontend changes require Node.js 20.19.0 or
+later and the browser dependencies described in the [MCP Apps guide](docs/mcp-apps.md).
+
+After installing the pinned npm dependencies, run:
+
+```sh
+npm run app:build
+npm run app:check
+npm run app:test
+npm run app:screenshots
+```
+
+Commit changed frontend sources with their rebuilt bundle. Inspect screenshots
+before committing them, and use only synthetic fixtures. Tests must cover the
+SDK lifecycle and meaningful interactions, including missing data and errors.
+Keep tool payloads, read-only boundaries, and plain MCP compatibility stable.
+
 ## Publication
 
 Do not publish a release or plugin from an unreviewed change. The release

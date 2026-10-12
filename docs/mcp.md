@@ -54,8 +54,9 @@ The client discovers the capabilities that match the current configuration:
 | Token and archive | All live and archive reads |
 | Token and writable archive | All reads, plus `backfill_archive` and `sync_archive` |
 
-An archive enables two resources and three workflow prompts. The resources are
-`tempest://archive/schema` and `tempest://archive/data-dictionary`. The prompts
+An archive enables two documentation resources and three workflow prompts. The
+resources are `tempest://archive/schema` and `tempest://archive/data-dictionary`.
+The prompts
 are `weather_report`, `climate_review`, and `build_archive`. A prompt does not
 enable tools that the configuration excludes.
 
@@ -72,6 +73,28 @@ The archive rejects writes for a different device.
 belongs to that station. Missing or mismatched identity leaves those fields
 absent. Do not assume that live weather and a configured archive describe the
 same station. See the [query guide](querying.md) before combining their results.
+
+## MCP Apps
+
+Supporting hosts can display interactive weather charts and tables for all
+available read-only tools. Use the same server configuration. Reconnect after
+updating the binary, then ask for a forecast, daily summary, or archive query.
+The host associates its result with the embedded app.
+
+The app supports table search, sorting, pagination, and refresh through the
+same read-only tool. Table controls operate on returned rows. Refresh does not
+backfill or sync history. `backfill_archive` and `sync_archive` have no app view.
+
+App-capable hosts receive `_meta.ui.resourceUri` in tool discovery. Each URI
+names a `text/html;profile=mcp-app` resource at
+`ui://tempestkeep/<tool-name>.html`. Available tools determine the registered
+resources. With all capabilities enabled, 27 UI resources supplement the two
+archive documentation resources.
+
+Clients without MCP Apps support retain the existing tool results and ordinary
+tool metadata. Node.js and an HTTP listener are not needed to run the app.
+See the [MCP Apps guide](mcp-apps.md) for host support, data limits, privacy,
+and reproducible screenshots.
 
 ## Start and stop
 

@@ -4,6 +4,10 @@ This package connects `tempestkeep mcp` to Claude Code. It contains three
 commands and one station-analysis skill. Other MCP clients can use the server
 directly without this plugin.
 
+MCP Apps views are part of the server. A host must support the MCP Apps extension
+to render them. Loading this plugin alone does not establish that support. See
+the [MCP Apps guide](../docs/mcp-apps.md).
+
 ## Prepare the server
 
 Build `tempestkeep` from the repository root with Go 1.27.0:
