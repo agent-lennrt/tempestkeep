@@ -27,7 +27,7 @@ samples with a wind speed.
 
 ## Run and verify
 
-With Go 1.27.0 installed:
+With Go 1.27.2 installed:
 
 ```sh
 make mcp-demo       # paced terminal demonstration

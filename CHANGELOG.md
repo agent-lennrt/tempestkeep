@@ -14,6 +14,14 @@
   a synthetic MCP Apps test host.
 - MCP Apps setup, compatibility, privacy, architecture, and OpenSpec requirements.
 
+### Changed
+
+- Pin Go 1.27.2 for module builds, repository checks, CI, and release qualification.
+  Contributors must use the updated patch toolchain. See
+  [ADR 0007](docs/adr/0007-go-patch-toolchain.md).
+- Update the pinned golangci-lint to v2.14.0 so static analysis can read the
+  patched toolchain's compiler export data.
+
 ### Compatibility
 
 MCP Apps is additive. Hosts that advertise support receive UI resource metadata

@@ -37,6 +37,9 @@ building, setup, collection, MCP operation, privacy, and verification.
 - [MCP Apps ADR](adr/0006-mcp-apps.md): embedded views, protocol compatibility,
   browser boundaries, and the proposed 0.3.0 release.
 
+- [Go patch toolchain ADR](adr/0007-go-patch-toolchain.md): the Go 1.27.2 pin and
+  qualification of the updated toolchain.
+
 ## Review correctness and security
 
 - [Correctness properties](testing/properties.md): guarantees converted into

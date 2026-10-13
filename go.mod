@@ -1,6 +1,6 @@
 module github.com/lennrt/tempestkeep
 
-go 1.27.0
+go 1.27.2
 
 // Direct dependencies of note:
 //   - github.com/modelcontextprotocol/go-sdk  (official MCP SDK)

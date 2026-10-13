@@ -92,7 +92,7 @@ See the [MCP guide](docs/mcp.md) for configuration, capabilities, and limits.
 
 ### Build
 
-You need Go 1.27.0 and a local filesystem for SQLite. Live data and collection
+You need Go 1.27.2 and a local filesystem for SQLite. Live data and collection
 also need a WeatherFlow personal access token. The build commands below use
 `make` and a Unix-like shell. The normal build uses pure Go. Race tests need
 a C toolchain.
@@ -294,7 +294,7 @@ See [SECURITY.md](SECURITY.md) for private reporting and the
 
 ## Verification
 
-Run the repository checks with Go 1.27.0:
+Run the repository checks with Go 1.27.2:
 
 ```sh
 make fmtcheck       # gofmt and goimports

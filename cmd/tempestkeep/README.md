@@ -6,7 +6,7 @@ one device.
 
 ## Build
 
-Use Go 1.27.0 from the repository root:
+Use Go 1.27.2 from the repository root:
 
 ```sh
 make tempestkeep

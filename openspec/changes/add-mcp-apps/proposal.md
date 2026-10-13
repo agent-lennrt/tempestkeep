@@ -14,6 +14,7 @@ terminal dashboard or running another service.
 - Preserve tool payloads, annotations, capability gating, archive limits, and plain MCP use.
 - Document setup, host compatibility, privacy, and reproducible synthetic previews.
 - Propose version 0.3.0 and update development and plugin version metadata.
+- Pin Go 1.27.2 across builds, verification, CI, and active instructions.
 
 ## Capabilities
 
@@ -25,6 +26,7 @@ None. MCP Apps extends the existing MCP service.
 
 - `mcp-service`: app discovery, embedded resources, interactive read-only views,
   host-mediated refresh, result fidelity, and the browser security boundary.
+- `contributor-workflow`: use one Go patch version for builds and qualification.
 
 ## Impact
 
@@ -36,4 +38,5 @@ The frontend uses pinned Node.js development dependencies. Its committed bundle
 is embedded in Go, so the application needs no Node.js runtime or local web server.
 The [ADR](../../../docs/adr/0006-mcp-apps.md) records the protocol and security
 decisions. The baseline service specification also includes the new requirements.
-Keep this proposal active while the pull request is under review.
+The [toolchain ADR](../../../docs/adr/0007-go-patch-toolchain.md) records the
+Go 1.27.2 upgrade. Keep this proposal active while the pull request is under review.

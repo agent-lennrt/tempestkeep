@@ -39,7 +39,8 @@
 
 ## Validation record (2026-09-30)
 
-The full Go tests and race suite passed on native Windows with Go 1.27.0.
+The full Go tests and race suite passed on native Windows with the then-pinned
+Go toolchain.
 Vet, golangci-lint, formatting, imports, documentation, strict OpenSpec validation,
 actionlint, module verification, tidy checks, and the public API snapshot passed.
 Vulnerability and secret scans found no issues. The dependency license check and

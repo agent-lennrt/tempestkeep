@@ -71,6 +71,16 @@ Since the baseline already contains these added requirements, use
 `npm run openspec -- archive add-mcp-apps --skip-specs` to avoid applying them
 twice. Then run strict validation again.
 
+## Toolchain qualification
+
+Pin Go 1.27.2 across the module, repository checks, CI, release qualification,
+and current instructions. Keep historical test results tied to their original
+run instead of attributing them to the new patch. Run the normal checks and
+vulnerability scan with Go 1.27.2 and record the actual result. See
+[ADR 0007](../../../docs/adr/0007-go-patch-toolchain.md).
+Use golangci-lint v2.14.0 to read the patched compiler's export data while
+retaining the existing enabled checks.
+
 ## Validation
 
 Protocol tests cover discovery and resources over real MCP transports, capability

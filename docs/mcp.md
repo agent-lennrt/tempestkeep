@@ -6,7 +6,7 @@ input and output. This command does not start an HTTP server or open a port.
 
 ## Build and connect
 
-Use Go 1.27.0 from the repository root:
+Use Go 1.27.2 from the repository root:
 
 ```sh
 make tempestkeep

@@ -37,10 +37,25 @@
 - [x] 4.3 Open the pull request with screenshot links, the proposed version, and verification
   evidence: [pull request #7](https://github.com/lennrt/tempestkeep/pull/7).
 
+## 5. Go security patch
+
+- [x] 5.1 Pin Go 1.27.2 in the module, Makefile, and every Go-based workflow.
+- [x] 5.2 Align contributor and release guidance, validate the specifications, and
+  pass `make verify` with the patched toolchain, including `make vuln`.
+- [x] 5.3 Update golangci-lint to v2.14.0 for the patched compiler's export data
+  and pass the existing lint configuration without disabling checks.
+
 ## Verification evidence
 
-- Go 1.27.0: module verification, formatting, docs, tidy, vet, standard tests,
-  race tests, all four fuzz targets, lint, workflow syntax, and public API checks passed.
+- On 2026-10-12, full `make verify` passed with Go 1.27.2 and golangci-lint
+  v2.14.0, including `make vuln` with no vulnerabilities found. All eight
+  workflow Go pins match the module and Makefile. `make check-go` also rejected
+  the older locally installed toolchain when automatic selection was disabled.
+- `npm run spec:check` passed all six baseline/change items after the toolchain
+  requirements were added.
+- Initial checks with the then-pinned Go toolchain: module verification,
+  formatting, docs, tidy, vet, standard tests, race tests, all four fuzz targets,
+  lint, workflow syntax, and public API checks passed.
 - `make licenses sbom secrets build-pure build-arm64` passed.
 - `make demo-smoke integration e2e docs-check` passed after updating the demo's
   discovery count to include the 27 new UI resources.
@@ -48,10 +63,11 @@
 - `npm run app:screenshots` passed. Weather and table images were visually reviewed;
   narrow weather, table, and wind views were also inspected at 390 pixels.
 - `npm run spec:check` passed all six baseline/change items.
-- `make verify` stops at `make vuln`: nine reachable Go standard-library advisories
-  in the repository's pinned Go 1.27.0. A pristine `origin/main` scan produced
-  byte-identical findings. All nine report Go 1.27.2 as fixed. The remaining
-  verification targets were run separately as recorded above.
+- Initial `make verify` stopped at `make vuln`: nine reachable Go standard-library advisories
+  in the repository's previous toolchain. A pristine `origin/main` scan produced
+  byte-identical findings. All nine reported Go 1.27.2 as fixed. The remaining
+  verification targets were run separately as recorded above. The full patched
+  run now passes, as recorded at the start of this section.
 - `npm audit` reports the existing OpenSpec / fast-glob / micromatch / braces chain
   for [GHSA-vfj7-8cjw-p6xm][braces]. No added frontend dependency is flagged.
 - Browser checks use the official AppBridge with synthetic data in a sandbox.

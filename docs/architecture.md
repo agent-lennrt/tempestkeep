@@ -1,6 +1,6 @@
 # Architecture
 
-TempestKeep builds one Go 1.27.0 command over one shared core:
+TempestKeep builds one Go 1.27.2 command over one shared core:
 
 - `tempestkeep` owns setup, collection, export, reports, and terminal views.
 - `tempestkeep mcp` exposes live and archived data over MCP stdio.
