@@ -1,6 +1,6 @@
 # Architecture
 
-TempestKeep builds one Go 1.27.0 command over one shared core:
+TempestKeep builds one Go 1.27.2 command over one shared core:
 
 - `tempestkeep` owns setup, collection, export, reports, and terminal views.
 - `tempestkeep mcp` exposes live and archived data over MCP stdio.
@@ -15,6 +15,7 @@ flowchart LR
     CORE[pkg/tempest]
     DB[(SQLite archive)]
     CLIENT[MCP client]
+    VIEW[Sandboxed MCP App]
 
     APP --> CLI
     APP --> MCP
@@ -23,6 +24,8 @@ flowchart LR
     CORE -->|authenticated HTTPS reads| WF
     CORE -->|read-only queries or constrained writes| DB
     CLIENT <-->|JSON-RPC over stdio| MCP
+    CLIENT <-->|MCP Apps bridge| VIEW
+    MCP -->|embedded HTML resource| CLIENT
 ```
 
 ## API and collection path
@@ -125,6 +128,29 @@ Stdout carries MCP JSON-RPC only. Stderr carries bounded, redacted diagnostics.
 The server does not log local archive paths, tokens, response bodies, station
 coordinates, serial numbers, or raw identifiers.
 
+## MCP Apps
+
+The server embeds one self-contained frontend bundle and serves a resource for
+each available read-only tool. App-capable clients receive the association through
+`_meta.ui.resourceUri`. Resource URIs use `ui://tempestkeep/<tool-name>.html` and
+MIME type `text/html;profile=mcp-app`. Ordinary clients retain their original tool
+metadata and results. Both kinds of client can inspect registered UI resources.
+
+The host renders the app in its sandbox. The official MCP Apps SDK receives
+tool inputs, tool results, and host context. Refresh repeats the associated
+read-only tool through the host. Existing Go handlers retain ownership of API
+calls, database reads, input validation, deadlines, and result limits.
+
+The frontend shows supported charts, interactive tables, and structured details.
+Its search, sort, and pagination state applies to returned rows. It cannot
+collect history or bypass server truncation. API credentials remain in Go.
+The resource requests no external network or asset origins and no device permissions.
+
+Node.js is required only to rebuild and test the frontend during development.
+The committed HTML bundle lets Go builds remain independent of npm and keeps
+runtime deployment to one executable. See the [MCP Apps guide](mcp-apps.md) and
+[ADR 0006](adr/0006-mcp-apps.md).
+
 ## Verification
 
 `make verify` runs formatting, import, module, vet, unit, integration, race,
@@ -132,3 +158,6 @@ fuzz, lint, generated API, vulnerability, license, SBOM, secret, pure-Go, and
 Linux ARM64 checks. It also checks GitHub Actions with pinned actionlint. See
 [testing/properties.md](testing/properties.md) and
 [threat-model.md](threat-model.md).
+
+Frontend changes also require the generated-bundle and Playwright browser checks
+in the [MCP Apps development guide](mcp-apps.md#develop-and-test-the-app).

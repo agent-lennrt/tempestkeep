@@ -3,9 +3,9 @@
 ## Scope
 
 This model covers `tempestkeep`, its MCP mode, the shared Go packages, the local
-SQLite archive, configuration files, and repository automation. It does not
-cover the WeatherFlow service, the MCP client, the operating system, or GitHub
-as trusted implementations.
+SQLite archive, embedded MCP Apps frontend, configuration files, and repository
+automation. It does not cover the WeatherFlow service, the MCP client, the
+operating system, or GitHub as trusted implementations.
 
 ## Protected assets
 
@@ -19,7 +19,7 @@ as trusted implementations.
 ## Trust roots
 
 - The user and the local operating-system account.
-- The Go 1.27.0 toolchain and Go checksum database.
+- The Go 1.27.2 toolchain and Go checksum database.
 - The configured WeatherFlow HTTPS endpoint.
 - Full commit SHAs in GitHub Actions.
 - The repository's reviewed source and generated API snapshot.
@@ -36,6 +36,7 @@ as trusted implementations.
 | Read-only SQL | Arbitrary query text and large results | One statement; SELECT/CTE filter; SQLite `query_only`; time, byte, row, and column limits | Cancel or return `ErrResultTooLarge` or `ErrInvalidArgument` |
 | Backup directory | Collision, unrelated files, permissive mode, and large directory | Owner-only mode; exact filename format; entry limit; atomic no-overwrite link | Preserve existing backups and return failure |
 | MCP stdio | Tool arguments and untrusted archive/API values | Generated schemas; input bounds; stdout reserved for JSON-RPC; redacted stderr | Return a tool error without raw diagnostic data |
+| MCP Apps sandbox | Tool arguments, result cells, API labels, and host messages | Official SDK bridge; text rendering; same-tool read-only refresh; self-contained assets; no external CSP origins or device permissions | Show a bounded error or empty state without direct API or archive access |
 | CI and tools | Dependency updates, mutable actions, and malicious history | Full action SHAs; minimum permissions; exact Go and tool versions; checksums; secret and dependency scans | Required job fails |
 
 ## Diagnostic sinks
@@ -61,6 +62,10 @@ outputs, not diagnostics. Treat their output as sensitive.
   and restore procedures.
 - MCP clients can request and retain weather data. Configure only trusted
   clients and review their logging policy.
+- The MCP Apps host controls the iframe sandbox, tool permissions, and retained
+  tool inputs and results. App CSP metadata cannot make an untrusted host safe.
+- Embedded JavaScript is a distribution dependency. Review its pinned source,
+  generated asset, included license notices, and browser test results together.
 - Private-repository CodeQL and dependency review can require GitHub Advanced
   Security. A missing entitlement is an external blocker, not a passing skip.
 - No penetration test, formal verification, production load test, or Antithesis
@@ -72,6 +77,8 @@ outputs, not diagnostics. Treat their output as sensitive.
 make test race fuzz lint generated
 make vuln licenses sbom secrets
 make build-pure build-arm64
+npm run app:check
+npm run app:test
 ```
 
 Before distribution, also inspect tracked, untracked, and ignored files; scan

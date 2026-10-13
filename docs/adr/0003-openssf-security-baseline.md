@@ -4,6 +4,8 @@
 
 Accepted for development before the first stable release.
 
+The linter patch pin is superseded by [ADR 0007](0007-go-patch-toolchain.md).
+
 ## Context
 
 The OpenSSF Passing assessment needs evidence of implemented practices. Existing
@@ -27,7 +29,7 @@ HTTP error for 3xx responses without contacting the redirect destination.
 Keep explicit test endpoints and borrowed HTTP clients available; callers must
 trust their transport and preserve the security policy for real credentials.
 
-Build pinned golangci-lint v2.13.2 through `make lint` with the required Go
+Build pinned golangci-lint through `make lint` with the required Go
 toolchain. Its updated Staticcheck supports Go 1.27's Linux standard library;
 the v2.12.2 analyzer panics on that library's new syntax. Keep
 Scorecard output in its workspace and retain it as a workflow artifact. An

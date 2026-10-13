@@ -42,7 +42,7 @@ another project's copied answers. Recheck time-dependent claims on each update.
 
 ## Reproduce the engineering evidence
 
-Use Go 1.27.0 and a C toolchain for race checks. No live WeatherFlow token is
+Use Go 1.27.2 and a C toolchain for race checks. No live WeatherFlow token is
 needed:
 
 ```sh
@@ -56,10 +56,11 @@ vulnerabilities, licenses, SBOM generation, secrets, and pure-Go builds for
 the host and Linux ARM64. Missing tools and failed checks must return failure.
 `make cover` measures statements, not branches; inspect untested behavior too.
 
-Local result on 2026-09-05: `make verify` passed with Go 1.27.0, including all
-three fuzz targets, race checks, zero lint issues, and no reported vulnerabilities
-or leaked credentials. A simulated imports-tool failure also correctly caused
-`make fmtcheck` to fail. GitHub workflow results must be checked after pushing.
+Local result on 2026-09-05: `make verify` passed with the then-pinned Go toolchain.
+That run included all three fuzz targets, race checks, zero lint issues, and no
+reported vulnerabilities or leaked credentials. A simulated imports-tool failure
+also correctly caused `make fmtcheck` to fail. GitHub workflow results must be
+checked after pushing.
 
 The 2026-09-05 coverage run measured 70.0% of statements overall. Store, model,
 collector, API, and MCP packages have substantial coverage, while some command

@@ -5,6 +5,9 @@
 - Owner: Repository maintainer
 - Scope: Public Go API, configuration, storage, wire formats, CI, and releases
 
+The Go patch pin in this record is superseded by
+[ADR 0007](0007-go-patch-toolchain.md). The remaining baseline decisions stay in effect.
+
 ## Context
 
 The initial repository state contains a README and MIT license. This decision
@@ -17,9 +20,9 @@ context. Some public inputs and returned collections are not bounded.
 
 ## Decision
 
-Use Go 1.27.0, the stable release listed by `https://go.dev/dl/?mode=json` on
-2026-08-29. Pin that exact patch in the module, CI, release jobs, and operator
-documentation.
+The initial baseline selected the stable Go release listed by
+`https://go.dev/dl/?mode=json` on 2026-08-29. Pin the supported patch in the module,
+CI, release jobs, and operator documentation. See ADR 0007 for the current pin.
 
 Establish the package surface as the compatibility baseline:
 
@@ -66,8 +69,9 @@ SBOM generation.
 
 ## Consequences
 
-The minimum Go version becomes 1.27.0. Contributors and CI may download that
-toolchain through Go's verified toolchain mechanism.
+The initial minimum Go version matched the stable release on the recorded date.
+Contributors and CI can download the current pinned toolchain through Go's
+verified toolchain mechanism.
 
 The stronger API contracts require call-site and test updates for this baseline.
 CI gains additional security jobs and therefore uses more runner time. No

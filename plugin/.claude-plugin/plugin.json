@@ -1,8 +1,8 @@
 {
   "name": "tempestkeep",
   "displayName": "TempestKeep",
-  "version": "0.2.0",
-  "description": "MCP integration for live and archived Tempest data.",
+  "version": "0.3.0",
+  "description": "MCP tools and interactive MCP Apps for live and archived Tempest data.",
   "author": {
     "name": "Lennart Rudolph",
     "url": "https://github.com/lennrt/tempestkeep"

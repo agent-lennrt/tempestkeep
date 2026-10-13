@@ -8,28 +8,58 @@
 [![Go Reference][docs-badge]][go-docs]
 [![GitHub stars][stars-badge]][stars]
 
-TempestKeep is a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)
-server and command-line tool for WeatherFlow Tempest. An MCP client can request
-live conditions, forecasts, and historical queries. TempestKeep can collect
-history into a local SQLite archive and resume interrupted collection.
+Explore your WeatherFlow Tempest data inside your
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io/) client.
+TempestKeep provides live weather, forecasts, and a local SQLite archive through
+typed tools.
+[MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview) adds
+interactive charts and tables directly to conversations in supporting hosts.
 
-One Go executable serves MCP over stdio, the client's standard input and output.
-The same executable provides a terminal dashboard, reports, and CSV or JSON Lines
-exports. An existing archive works without a WeatherFlow token.
+![Weather charts in the TempestKeep MCP App](docs/screenshots/mcp-app-weather.png)
 
-[![MCP discovery, archive backfill, chained queries, and offline reuse][mcp-demo]][mcp-video]
+*Synthetic weather in the local MCP Apps test host, captured with Playwright.
+This preview does not certify a specific client.*
 
-[Watch the MP4 clip][mcp-video] · [Run the demo locally](#try-it-without-a-station)
-· [Connect your agent](#connect-your-agent) · [CLI and terminal UI](#cli-and-terminal-ui)
+[Connect your client](#connect-your-agent) · [Explore MCP Apps](#interactive-mcp-apps)
+· [Try synthetic data](#try-it-without-a-station) · [CLI and terminal UI](#cli-and-terminal-ui)
 
-The clip uses synthetic weather and a scripted Go client. Discovery, tool calls,
-archive writes, and the final session without an API token all run through the
-real MCP server. No LLM or WeatherFlow account is needed to replay it.
+One Go executable serves MCP over stdio and includes the complete app UI.
+You do not need Node.js, a web server, or the separate TUI to explore data in
+an MCP Apps host. The same executable still provides terminal dashboards,
+reports, and CSV or JSON Lines exports. An existing archive works without a token.
+
+## Interactive MCP Apps
+
+Ask for weather or an archive query, then explore the result in your conversation.
+The host opens the view for the tool it calls. Use the same MCP connection and
+credentials described below.
+
+| Explore | In the app |
+|---|---|
+| Weather over time | Switch chart metrics, explore the wind rose, and inspect exact readings in the table. |
+| Archive and SQL results | Search rows, sort columns, and move between table pages. |
+| Updated results | Refresh the same read-only tool with its original arguments. |
+| Your working environment | Use responsive views that follow the host's light or dark theme. |
+
+![Searchable archive table in the TempestKeep MCP App](docs/screenshots/mcp-app-table.png)
+
+*Synthetic table data in the local MCP Apps test host, captured with Playwright.*
+
+Search and pagination cover the returned rows. Views display up to 2,000 rows
+and 64 columns, with a notice when a limit applies. If a server limit truncates
+the result, narrow the tool request before drawing conclusions about the archive.
+Missing readings remain distinct from zero. The app does not run archive writes.
+
+MCP Apps support depends on the host and its version. Clients without the
+extension retain the existing text and structured tool results. See the
+[MCP Apps guide](docs/mcp-apps.md) for usage, host compatibility, privacy, and
+screenshot reproduction.
 
 ## What your agent can do
 
 With live access and a writable archive, TempestKeep exposes 29 typed tools,
-2 resources, and 3 prompts. Each tool has an input schema and structured output.
+2 archive documentation resources, and 3 prompts. Each tool has an input schema
+and structured output. The 27 read-only tools also have MCP Apps UI resources.
 
 | Ask your agent | MCP workflow |
 |---|---|
@@ -62,7 +92,7 @@ See the [MCP guide](docs/mcp.md) for configuration, capabilities, and limits.
 
 ### Build
 
-You need Go 1.27.0 and a local filesystem for SQLite. Live data and collection
+You need Go 1.27.2 and a local filesystem for SQLite. Live data and collection
 also need a WeatherFlow personal access token. The build commands below use
 `make` and a Unix-like shell. The normal build uses pure Go. Race tests need
 a C toolchain.
@@ -125,12 +155,23 @@ Diagnostics go to stderr. SIGINT and SIGTERM cancel work and close the archive.
 The archive remains local. Tool results go to the connected MCP client, which
 can send them to its model provider.
 
+In an MCP Apps host, ask for a forecast, daily summary, or SQL query to open its
+interactive result. Reconnect after replacing an older binary so the client
+refreshes its tool list. No additional TempestKeep app configuration is required.
+
 The optional [Claude Code plugin](plugin/README.md) uses the same server.
+A plugin connection alone does not establish MCP Apps support in that client.
 
 ## Try it without a station
 
-Run the same MCP session shown above with a local synthetic API and a temporary
-archive. No real token or model provider is used:
+[![MCP discovery, archive backfill, chained queries, and offline reuse][mcp-demo]][mcp-video]
+
+[Watch the MP4 clip][mcp-video]. The clip uses a scripted Go client and synthetic
+weather. Discovery, tool calls, archive writes, and offline reuse run through the
+real MCP server. It demonstrates the underlying MCP tools, rather than the app UI.
+
+Run that MCP session with a local synthetic API and a temporary archive.
+No real token or model provider is used:
 
 ```sh
 make mcp-demo
@@ -198,9 +239,10 @@ cycles the month/year metric. The `g` or Home key returns to the latest period.
 The `q`, Esc, and Ctrl+C keys exit either dashboard.
 
 `tempestkeep version` reports the build's injected version, then Go's module
-version when available. If neither exists, it falls back to `v0.2.0-dev`.
+version when available. If neither exists, it falls back to `v0.3.0-dev`.
 `make build` injects a version from Git tags or that development fallback.
-See [CHANGELOG.md](CHANGELOG.md) for the pending minor-version changes.
+Version 0.3.0 is the proposed next minor release. See [CHANGELOG.md](CHANGELOG.md)
+for its scope. This change does not publish a release.
 
 ## Archive behavior
 
@@ -252,7 +294,7 @@ See [SECURITY.md](SECURITY.md) for private reporting and the
 
 ## Verification
 
-Run the repository checks with Go 1.27.0:
+Run the repository checks with Go 1.27.2:
 
 ```sh
 make fmtcheck       # gofmt and goimports
@@ -290,12 +332,15 @@ deletes that archive. It discards API output. Do not run it with a production to
 
 CI runs on pushes to `main`, pull requests, and manual dispatch. Ubuntu runs
 the full Go checks. macOS and Windows run native tests, documentation checks,
-and pure-Go builds. A separate job validates the OpenSpec requirements.
+and pure-Go builds. Separate jobs validate OpenSpec requirements and the MCP
+Apps bundle and browser behavior.
 CI cancels obsolete runs.
 
 Demo recording and release qualification are manual. Release qualification
-builds a snapshot and does not publish it. OpenSpec's Node.js dependency is
-development tooling and is not required to build or run TempestKeep.
+builds a snapshot and does not publish it. Node.js is development tooling for
+OpenSpec and the MCP Apps frontend. It is not required to build or run TempestKeep.
+For UI changes, run the [frontend checks](docs/mcp-apps.md#develop-and-test-the-app)
+in addition to the Go checks.
 
 Use the [documentation index](docs/README.md) to find command guides, design
 records, security evidence, support policy, and release procedures. See
@@ -337,7 +382,7 @@ Tempest names and marks belong to their respective owners. See [NOTICE.md](NOTIC
 
 TempestKeep uses the MIT License. See [LICENSE](LICENSE).
 
-[version-badge]: https://img.shields.io/badge/development-v0.2.0--dev-blue
+[version-badge]: https://img.shields.io/badge/development-v0.3.0--dev-blue
 [ci-b]: https://img.shields.io/github/actions/workflow/status/lennrt/tempestkeep/ci.yml?branch=main
 [ci]: https://github.com/lennrt/tempestkeep/actions/workflows/ci.yml
 [license-badge]: https://img.shields.io/github/license/lennrt/tempestkeep

@@ -1,7 +1,7 @@
 schema: spec-driven
 
 context: |
-  TempestKeep is a Go 1.27 command and MCP stdio server for WeatherFlow Tempest.
+  TempestKeep is a Go 1.27.2 command and MCP stdio server for WeatherFlow Tempest.
   Read CONTRIBUTING.md and the relevant docs/adr records before implementation.
   Store observations in SI units, with exactly one device per SQLite archive.
   Keep Store reads separate from Writer mutations. Preserve append-only replay.
@@ -13,7 +13,9 @@ context: |
   Add an ADR for public API, wire, storage, security, configuration, or release changes.
   Use synthetic data and local HTTP servers in tests. Never require a live token.
   Write short, direct English. Preserve identifiers, units, and technical meaning.
-  OpenSpec is development tooling; building the Go binary does not require Node.js.
+  OpenSpec and MCP Apps asset tooling are development-only Node.js dependencies.
+  Embed the frontend bundle so building or running Go does not require Node.js.
+  MCP Apps views use existing read-only tools, preserve plain clients, and need no external origins.
 
 rules:
   proposal:

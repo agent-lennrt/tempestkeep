@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.3.0 (proposed, unreleased)
+
+### Added
+
+- MCP Apps views for available read-only weather and archive tools, embedded in
+  the Go binary and rendered by supporting MCP hosts.
+- Weather charts and searchable, sortable, paginated tables with host themes
+  and refresh through the same read-only tool.
+- Self-contained app resources with no external network origins or device
+  permissions. API credentials remain in the Go server.
+- Protocol and Playwright browser coverage, plus reproducible screenshots from
+  a synthetic MCP Apps test host.
+- MCP Apps setup, compatibility, privacy, architecture, and OpenSpec requirements.
+
+### Changed
+
+- Pin Go 1.27.2 for module builds, repository checks, CI, and release qualification.
+  Contributors must use the updated patch toolchain. See
+  [ADR 0007](docs/adr/0007-go-patch-toolchain.md).
+- Update the pinned golangci-lint to v2.14.0 so static analysis can read the
+  patched toolchain's compiler export data.
+
+### Compatibility
+
+MCP Apps is additive. Hosts that advertise support receive UI resource metadata
+on read-only tools. Ordinary clients retain the existing tools and results.
+Resource discovery gains HTML resources. Existing tool schemas, annotations,
+result shapes, archive formats, and configuration remain unchanged.
+
+The app's refresh action does not collect history or mutate the archive.
+Frontend development uses pinned npm dependencies. The Go build and runtime do
+not require Node.js. Existing archives need no migration. See
+[ADR 0006](docs/adr/0006-mcp-apps.md) for the protocol and security boundaries.
+
+Version 0.3.0 is proposed because MCP Apps adds a user-facing feature. Development
+and plugin metadata use that version. No tag, release, or plugin publication is
+part of this change. Qualification still follows [RELEASING.md](RELEASING.md).
+
 ## 0.2.0 (unreleased)
 
 ### Added

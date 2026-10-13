@@ -12,7 +12,7 @@ Questions and narration are scripted. Counts, tool results, and summaries come
 from actual protocol exchanges against synthetic weather data. There is no LLM
 in the recording and no claim about a particular model's tool selection.
 
-1. Discover the server, 29 tools, 2 resources, and 3 prompts.
+1. Discover the server, 29 tools, 29 resources (27 app views and 2 archive guides), and 3 prompts.
 2. Build 45 days of synthetic history through repeated bounded backfill calls.
 3. Select the strongest gust in the last 30 days, then inspect that day's hourly
    observations. The comparison uses hourly mean wind speed. Each hourly gust field
@@ -27,7 +27,7 @@ samples with a wind speed.
 
 ## Run and verify
 
-With Go 1.27.0 installed:
+With Go 1.27.2 installed:
 
 ```sh
 make mcp-demo       # paced terminal demonstration

@@ -11,8 +11,8 @@ An OpenSpec proposal supplements the architecture decisions in [docs/adr](adr).
 ## Install the development tool
 
 Use Node.js 20.19.0 or later with npm. The lockfile pins OpenSpec and its
-dependencies. Node.js is needed only for specification work. Building and
-running the Go application does not require it.
+dependencies. Node.js supports specification checks and MCP Apps frontend
+development. Building and running the Go application does not require it.
 
 From the repository root, run these commands:
 
