@@ -461,7 +461,9 @@ type QueryResult struct {
 	Truncated bool     `json:"truncated,omitempty"` // hit maxRows; more rows exist
 }
 type RainStats struct {
-	TotalIn      float64  `json:"total_in"`
+	Observations int64    `json:"observations"`  // stored rows, regardless of rain availability
+	RainReadings int64    `json:"rain_readings"` // non-NULL rain samples, including measured zero
+	TotalIn      *float64 `json:"total_in"`
 	DaysObserved int64    `json:"days_observed"`
 	RainyDays    int64    `json:"rainy_days"`
 	WettestDay   string   `json:"wettest_day,omitempty"`

@@ -475,7 +475,7 @@ func registerCalendarTools(srv *mcp.Server, st *store.Store) {
 	addAppTool(srv, &mcp.Tool{
 		Name:        "rain_stats",
 		Title:       "Rainfall statistics",
-		Description: "Return rain totals, rainy days, the wettest day, and the longest dry and wet spells. Coverage gaps end a spell. The default range is the full archive.",
+		Description: "Return recorded rain totals, rainy days, the wettest day, and observed dry and wet spells. total_in is null without rain readings. rain_readings and observations describe sample coverage; partial totals include only reported readings. Gaps and days without rain readings end spells. The default range is the full archive.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true, OpenWorldHint: new(false)},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, args RainStatsArgs) (*mcp.CallToolResult, RainStatsOut, error) {
 		start, end, err := resolveOptionalRange(args.Start, args.End, 0)
@@ -490,8 +490,13 @@ func registerCalendarTools(srv *mcp.Server, st *store.Store) {
 		if start > 0 {
 			out.From = localDate(start)
 		}
-		if rs.DaysObserved == 0 {
+		switch {
+		case rs.Observations == 0:
 			out.Note = "no observations in this range"
+		case rs.RainReadings == 0:
+			out.Note = "no rain readings in this range; rainfall is unknown, not measured zero"
+		case rs.RainReadings < rs.Observations:
+			out.Note = "partial rain coverage: total and observed spells use reported readings only; sample counts do not establish continuous coverage"
 		}
 		return nil, out, nil
 	})
