@@ -166,6 +166,12 @@ func exportRange(start, end string) (int64, int64, error) {
 	if startEpoch > endEpoch {
 		return 0, 0, fmt.Errorf("--start must not be after --end")
 	}
+	if startEpoch < 0 || endEpoch < 0 || startEpoch > model.MaxEpochSeconds || endEpoch > model.MaxEpochSeconds {
+		return 0, 0, fmt.Errorf("--start and --end must resolve within supported observation timestamps")
+	}
+	if endEpoch-startEpoch > store.MaxRangeSeconds {
+		return 0, 0, fmt.Errorf("--start and --end must not span more than %d days", store.MaxRangeSeconds/(24*60*60))
+	}
 	return startEpoch, endEpoch, nil
 }
 
