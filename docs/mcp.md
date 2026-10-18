@@ -140,11 +140,12 @@ If the archive needs older history, call `backfill_archive`:
 ```
 
 After each successful call, inspect `rows_added`, `coverage`, `has_more`, and
-`next_before`. If `has_more` is true, another call without dates resumes the
-saved cursor. Stop on an error or when the client's time budget ends. A later
-session can continue from the committed progress.
+`next_before`. If `has_more` is true, another call without `end` or
+`before_epoch` resumes the saved cursor. Stop on an error or when the client's
+time budget ends. A later session can continue from the committed progress.
 
-To stop at a chosen oldest date, pass `start` and leave `end` unset:
+To stop at a chosen oldest date, pass `start` and leave `end` and `before_epoch`
+unset:
 
 ```json
 {"start": "2025-01-01", "max_days": 30}
@@ -172,17 +173,37 @@ lets the walk continue through empty ranges to that date.
 Completion does not prove that every date has complete observations. A data
 gap can remain even after the API's available history is exhausted.
 
-For a specific gap, use an explicit window shorter than the call budget:
+For a specific gap, use an explicit window:
 
 ```json
-{"start": "2025-06-01", "end": "2025-06-04", "max_days": 5}
+{"start": "2025-06-01", "end": "2025-06-04", "max_days": 1}
 ```
 
-This example includes June 1 through June 3 in the process timezone.
+The requested window includes June 1 through June 3 in the process timezone.
+Each call fetches at most one 24-hour day because `max_days` is one.
 For `backfill_archive`, `end` is exclusive local midnight. An explicit `end`
-does not update the shared resume cursor. Repeating the same window rereads
-that window and ignores duplicate rows. Split larger repairs into bounded
-windows instead of repeating an unchanged `end`.
+or `before_epoch` leaves the shared resume cursor, completion marker, and
+empty-history progress unchanged. Repeating the same window rereads that
+window and ignores duplicate rows.
+
+If `has_more` is true, pass the returned `next_before` integer as `before_epoch`
+on the next call. Omit `end` and repeat the same `start` and `max_days`.
+The epoch boundary is exclusive, so the next batch continues exactly where
+the previous one stopped. For example, when the process timezone is UTC and
+`next_before` is `1748908800`, continue with:
+
+```json
+{"start": "2025-06-01", "before_epoch": 1748908800, "max_days": 1}
+```
+
+That boundary is June 3, 2025 at 00:00 UTC. Use the integer from your own result.
+Do not convert it to a date: a budget counts 24-hour days, and its boundary
+can fall within a local calendar day during a daylight-saving transition.
+Repeat until `has_more` is false. `before_epoch` must be a positive epoch second
+within the supported observation range, and cannot be combined with `end`.
+Omitting `start` on a continuation removes the requested lower bound.
+After an error, repeat the failed explicit request; committed rows remain
+replay-safe, and explicit requests do not save a separate resume cursor.
 
 The CLI and MCP use the same archive and collection metadata. MCP collection
 does not create the CLI's post-collection backups. See the

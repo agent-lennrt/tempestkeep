@@ -92,8 +92,28 @@ bin/tempestkeep collect --backfill-start 2025-01-01
 ```
 
 The date starts at midnight in the process timezone. The flag does not request
-an older gap repair on an archive that already has a watermark. For that case,
-use an explicit `backfill_archive` window through [MCP](../../docs/mcp.md#build-an-archive).
+an older gap repair on an archive that already has a watermark.
+
+To repair a gap or collect a selected historical period, provide both dates:
+
+```sh
+bin/tempestkeep collect --start 2025-06-01 --end 2025-06-30
+```
+
+This mode requests only the selected local calendar days, including the entire
+end date. If the end date is today, it requests observations only through the
+current time. Both flags are required. A range may contain at most 366 calendar
+days, including 23-hour or 25-hour days across daylight-saving changes. Dates
+before the Unix epoch, future end dates, and reversed ranges are rejected
+before API requests or archive creation.
+
+An explicit range can populate a new archive or revisit rows older than the
+current watermark. Existing observations are preserved, and repeated runs do
+not add duplicates. It leaves saved seed and MCP sync progress unchanged.
+It ignores `TEMPEST_BACKFILL_START`; combining the range flags with an explicit
+`--backfill-start` flag is an error. Missing upstream observations remain missing.
+The [MCP backfill tool](../../docs/mcp.md#build-an-archive) also supports selected
+historical windows, with an exclusive end date instead.
 
 Each API request covers at most five days. Each successful chunk commits before
 the next request. The `(device_id, epoch)` key prevents duplicate rows when a
@@ -107,7 +127,9 @@ bin/tempestkeep collect --quiet
 
 SIGINT and SIGTERM cancel collection. An interrupted run exits with a failure
 status and preserves committed rows and resume metadata. Rerun the same command
-to continue.
+to continue. For an explicit range, repeat the same `--start` and `--end`
+arguments. Earlier committed chunks are replayed safely before collection
+reaches the unfinished part; this mode does not save a separate range cursor.
 
 After successful collection, the command checkpoints SQLite's write-ahead log
 (WAL), which holds recent database changes. It then closes the writer and makes

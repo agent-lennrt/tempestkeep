@@ -88,6 +88,11 @@ make sure that your collection method selects the device that owns the archive.
 
 Repeated `sync_archive` calls retrieve new data, not historical gaps. For a
 gap, use the bounded `backfill_archive` example in the [MCP guide](mcp.md#build-an-archive).
+Continue an explicit MCP request with its exact `next_before` as `before_epoch`.
+Repeat `start` and `max_days`, and omit `end`. For CLI repair, use
+`tempestkeep collect --start YYYY-MM-DD --end YYYY-MM-DD` with both local dates
+included. Repeat the same CLI range after interruption. Explicit repair leaves
+ordinary collection progress unchanged.
 WeatherFlow can return no data for a gap that the API cannot recover.
 
 If collection reports invalid checkpoint metadata, preserve the archive and
