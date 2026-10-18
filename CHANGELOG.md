@@ -4,6 +4,14 @@
 
 ### Added
 
+- Explicit CLI archive repair with paired inclusive `collect --start` and
+  `--end` dates, bounded to 366 calendar days and safe to replay.
+- Exact `before_epoch` continuation for MCP backfill, including batches that
+  stop inside a daylight-saving transition day.
+- `rain_readings` and `lightning_readings` counts in observation-series buckets,
+  with missing-value displays and incomplete-coverage notices in MCP Apps.
+- Pointer, touch, and keyboard inspection for every returned chart point,
+  including dense series above 60 readings.
 - MCP Apps views for available read-only weather and archive tools, embedded in
   the Go binary and rendered by supporting MCP hosts.
 - Weather charts and searchable, sortable, paginated tables with host themes
@@ -16,6 +24,10 @@
 
 ### Changed
 
+- Center both time and temperature by calendar month in the trend fit, so
+  uneven seasonal coverage does not dilute the within-month slope.
+- Report zero slope for repeated constant monthly temperatures and omit the
+  undefined R². See [ADR 0009](docs/adr/0009-seasonal-trend-estimation.md).
 - Pin Go 1.27.2 for module builds, repository checks, CI, and release qualification.
   Contributors must use the updated patch toolchain. See
   [ADR 0007](docs/adr/0007-go-patch-toolchain.md).
@@ -27,7 +39,14 @@
 MCP Apps is additive. Hosts that advertise support receive UI resource metadata
 on read-only tools. Ordinary clients retain the existing tools and results.
 Resource discovery gains HTML resources. Existing tool schemas, annotations,
-result shapes, archive formats, and configuration remain unchanged.
+archive formats, and configuration remain unchanged by MCP Apps itself.
+
+Archive recovery adds a `before_epoch` input to `backfill_archive` and two
+reading-count fields to `get_observations` points. Existing numeric totals
+keep their types; a zero count means its total is unknown, and a count below
+`obs` means partial coverage. Exported `SeriesPoint` gains the corresponding
+fields. See [ADR 0008](docs/adr/0008-archive-recovery-and-coverage.md) for
+compatibility and continuation rules.
 
 The app's refresh action does not collect history or mutate the archive.
 Frontend development uses pinned npm dependencies. The Go build and runtime do

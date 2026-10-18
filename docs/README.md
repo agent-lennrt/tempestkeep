@@ -40,6 +40,12 @@ building, setup, collection, MCP operation, privacy, and verification.
 - [Go patch toolchain ADR](adr/0007-go-patch-toolchain.md): the Go 1.27.2 pin and
   qualification of the updated toolchain.
 
+- [Archive recovery and coverage ADR](adr/0008-archive-recovery-and-coverage.md):
+  explicit collection ranges, exact MCP continuation, and event sensor counts.
+
+- [Seasonal trend ADR](adr/0009-seasonal-trend-estimation.md): a common trend
+  with separate calendar-month baselines and explicit limits on interpretation.
+
 ## Review correctness and security
 
 - [Correctness properties](testing/properties.md): guarantees converted into

@@ -36,7 +36,7 @@ credentials described below.
 
 | Explore | In the app |
 |---|---|
-| Weather over time | Switch chart metrics, explore the wind rose, and inspect exact readings in the table. |
+| Weather over time | Switch metrics, inspect chart points with pointer, touch, or keyboard, and explore the wind rose. |
 | Archive and SQL results | Search rows, sort columns, and move between table pages. |
 | Updated results | Refresh the same read-only tool with its original arguments. |
 | Your working environment | Use responsive views that follow the host's light or dark theme. |
@@ -49,6 +49,8 @@ Search and pagination cover the returned rows. Views display up to 2,000 rows
 and 64 columns, with a notice when a limit applies. If a server limit truncates
 the result, narrow the tool request before drawing conclusions about the archive.
 Missing readings remain distinct from zero. The app does not run archive writes.
+Observation-series views show when rain or lightning readings are missing or
+partial. Available totals do not imply complete sensor coverage.
 
 MCP Apps support depends on the host and its version. Clients without the
 extension retain the existing text and structured tool results. See the
@@ -202,6 +204,17 @@ the interactive setup wizard, then collect history and open the dashboard:
 ./bin/tempestkeep now
 ./bin/tempestkeep explore
 ```
+
+To fill a gap in an existing archive, collect an explicit range:
+
+```sh
+./bin/tempestkeep collect --start 2025-06-01 --end 2025-06-03
+```
+
+Both local dates are included. A range can cover at most 366 calendar days.
+Repeating it is safe and leaves ordinary collection progress unchanged.
+MCP clients can use `backfill_archive` and pass its exact `next_before` value
+as `before_epoch` to continue a bounded request; repeat `start` and `max_days`.
 
 For manual setup on Unix-like systems, copy `.env.example` to `.env` and run
 `chmod 600 .env` before entering the token. Commands read that file from their
