@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 (proposed, unreleased)
+## 0.4.0 (proposed, unreleased)
 
 ### Added
 
@@ -12,6 +12,44 @@
   with missing-value displays and incomplete-coverage notices in MCP Apps.
 - Pointer, touch, and keyboard inspection for every returned chart point,
   including dense series above 60 readings.
+- Optional `export --metadata` fields for device ID, report interval, wind
+  interval, precipitation type, and source. Defaults remain unchanged.
+- Read-only streaming access to stored observation metadata through
+  `store.ArchiveObs` and `Store.EachArchiveObs`.
+
+### Changed
+
+- Preserve table search, sorting, dataset selection, and valid page position
+  across compatible refreshes. New requests and changed table structures reset
+  controls. Focused search text and selection survive a pending refresh.
+- Center both time and temperature by calendar month in the trend fit, so
+  uneven seasonal coverage does not dilute the within-month slope.
+- Report zero slope for repeated constant monthly temperatures and omit the
+  undefined R². See [ADR 0009](docs/adr/0009-seasonal-trend-estimation.md).
+- Bump active development, plugin, and embedded app metadata to 0.4.0.
+
+### Compatibility
+
+Archive recovery adds a `before_epoch` input to `backfill_archive` and two
+reading-count fields to `get_observations` points. Existing numeric totals
+keep their types; a zero count means its total is unknown, and a count below
+`obs` means partial coverage. Exported `SeriesPoint` gains the corresponding
+fields. See [ADR 0008](docs/adr/0008-archive-recovery-and-coverage.md).
+
+Default CSV columns and JSON Lines fields remain unchanged. `--metadata` appends
+five CSV columns and optional JSON fields. Metadata retains its stored units in
+SI and US exports. Older schemas expose unavailable metadata as missing. The
+store API additions do not change `model.Obs`. See
+[ADR 0010](docs/adr/0010-export-metadata-and-development-version.md).
+
+Existing archives need no migration. Version 0.4.0 remains a development target;
+no tag, release, plugin publication, or merge is part of this change.
+Qualification still follows [RELEASING.md](RELEASING.md).
+
+## 0.3.0 (proposed, unreleased)
+
+### Added
+
 - MCP Apps views for available read-only weather and archive tools, embedded in
   the Go binary and rendered by supporting MCP hosts.
 - Weather charts and searchable, sortable, paginated tables with host themes
@@ -24,10 +62,6 @@
 
 ### Changed
 
-- Center both time and temperature by calendar month in the trend fit, so
-  uneven seasonal coverage does not dilute the within-month slope.
-- Report zero slope for repeated constant monthly temperatures and omit the
-  undefined R². See [ADR 0009](docs/adr/0009-seasonal-trend-estimation.md).
 - Pin Go 1.27.2 for module builds, repository checks, CI, and release qualification.
   Contributors must use the updated patch toolchain. See
   [ADR 0007](docs/adr/0007-go-patch-toolchain.md).
@@ -39,14 +73,7 @@
 MCP Apps is additive. Hosts that advertise support receive UI resource metadata
 on read-only tools. Ordinary clients retain the existing tools and results.
 Resource discovery gains HTML resources. Existing tool schemas, annotations,
-archive formats, and configuration remain unchanged by MCP Apps itself.
-
-Archive recovery adds a `before_epoch` input to `backfill_archive` and two
-reading-count fields to `get_observations` points. Existing numeric totals
-keep their types; a zero count means its total is unknown, and a count below
-`obs` means partial coverage. Exported `SeriesPoint` gains the corresponding
-fields. See [ADR 0008](docs/adr/0008-archive-recovery-and-coverage.md) for
-compatibility and continuation rules.
+result shapes, archive formats, and configuration remain unchanged.
 
 The app's refresh action does not collect history or mutate the archive.
 Frontend development uses pinned npm dependencies. The Go build and runtime do

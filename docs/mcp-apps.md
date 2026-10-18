@@ -75,6 +75,17 @@ sensor coverage.
 Refresh repeats the current read-only tool with the same arguments through the
 host. Live tools retain the configured API cache behavior. Archive views read
 the archive's current contents. Refresh does not sync or backfill history.
+A compatible refresh keeps the selected dataset, search text, sort column and
+direction, and page. If fewer filtered rows remain, the page moves to the last
+available page. Edits made while the call is pending are retained, including
+search focus and text selection. A failed refresh leaves the prior result and
+controls available.
+
+A new tool input resets table controls. A missing selected dataset or a changed
+ordered column structure also resets them, so stale sorting cannot select a
+different column. Empty results without explicit column metadata also reset
+controls because their structure is unknown. This state lasts only in the current
+app instance. Chart reading selection still resets when a result is replaced.
 For a different range or query, ask the agent to call the tool with new arguments.
 
 The view follows the host's theme and fits narrow containers. Loading, empty

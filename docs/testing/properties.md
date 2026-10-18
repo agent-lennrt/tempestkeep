@@ -49,6 +49,10 @@ store any failing input in the Go fuzz corpus so the failure can be replayed.
 | P-39 | Seasonal trends depend on within-month change rather than unrelated seasonal coverage. | Exact warming/cooling, unmatched months, uneven groups, equal monthly weights, flat readings, absent repeated months, and large years. | `TestTemperatureTrendUnmatchedMonthCannotDiluteSlope`, `TestTemperatureTrendCentersUnevenMonthGroups`, `TestTemperatureTrendWeightsMonthlyMeansEqually`, `TestTemperatureTrendFlatRepeatedMonths`, `TestTemperatureTrendStableNearSupportedYearLimit`, `TestWriteStatsFlatTrend` |
 | P-40 | Chart inspection selects returned readings without interpolation or extra tool calls. | Dense 2,000-point data, irregular time spacing, keyboard, touch, missing and zero readings, changed results, and resize selection/focus. | `npm run app:test`, `npm run app:screenshots` |
 
+| P-41 | Optional export metadata preserves source values without changing default output. | CSV/JSONL, SI/US, exact solar arithmetic, missing/zero/fractional metadata, source controls, and failed writes. | `TestExportMetadataReproducesSolarEstimate`, `TestDefaultExportShapeRemainsStable`, `TestExportMetadataOutputFailureAndCancellation` |
+| P-42 | Archive metadata streams through read-only bounded queries. | Legacy and uppercase columns, inclusive ordering, source byte/UTF-8 bounds, nonfinite metadata, cancellation, callback failure, and released connections. | `TestEachArchiveObsMetadataAndBounds`, `TestEachArchiveObsLegacySchema`, `TestEachArchiveObsSourceBounds`, `TestEachArchiveObsStopsAndClosesRows`, `TestEachArchiveObsRejectsInvalidOperations`, `TestEachArchiveObsRejectsNonFiniteMetadata` |
+| P-43 | Compatible refreshes retain table exploration while displaying fresh rows. | Search/sort/page, changed data, page clamping, pending edits and focus, dataset reorder/removal, SQL duplicate columns, new contexts, and failed refreshes. | `tests/mcp-app/refresh.spec.mjs`, `npm run app:test` |
+
 ## Test commands
 
 ```sh

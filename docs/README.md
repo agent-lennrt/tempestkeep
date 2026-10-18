@@ -46,6 +46,9 @@ building, setup, collection, MCP operation, privacy, and verification.
 - [Seasonal trend ADR](adr/0009-seasonal-trend-estimation.md): a common trend
   with separate calendar-month baselines and explicit limits on interpretation.
 
+- [Export metadata and version ADR](adr/0010-export-metadata-and-development-version.md):
+  opt-in observation metadata, streaming access, and the 0.4.0 development target.
+
 ## Review correctness and security
 
 - [Correctness properties](testing/properties.md): guarantees converted into

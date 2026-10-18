@@ -71,6 +71,13 @@ progress survives bounded calls and restarts. One MCP server serializes its
 archive write workflows. Separate server processes do not share that
 coordination, so avoid overlapping collectors for one archive.
 
+Exports use read-only streaming iterators. `EachObs` keeps the presentation
+subset; `EachArchiveObs` adds nullable stored intervals, device identity,
+precipitation type, and source. The CLI includes those fields only with
+`--metadata`. It discovers optional columns through a fixed allowlist, treats
+absent legacy columns as missing, and bounds source text before loading it.
+No file-wide result buffer or archive migration is needed.
+
 ## SQLite ownership
 
 `store.Writer` creates the parent directory, file, and schema. It owns one
