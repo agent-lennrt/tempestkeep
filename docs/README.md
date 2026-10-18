@@ -48,6 +48,8 @@ building, setup, collection, MCP operation, privacy, and verification.
 
 - [Export metadata and version ADR](adr/0010-export-metadata-and-development-version.md):
   opt-in observation metadata, streaming access, and the 0.4.0 development target.
+- [Device selection and pressure ADR](adr/0011-mcp-device-selection-and-pressure-samples.md):
+  MCP device choice, station-device tables, pressure samples, and report bounds.
 
 ## Review correctness and security
 

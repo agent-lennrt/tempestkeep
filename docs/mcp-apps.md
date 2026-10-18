@@ -29,6 +29,7 @@ This repository does not certify a particular host or version.
 | "Show daily weather for the past month." | Trends and a table of daily summaries. |
 | "Show the windiest days in my archive." | Ranked rows from a summary or read-only SQL result. |
 | "Show the archive status." | Coverage and the available structured details. |
+| "List my stations and devices." | Stations and a Devices table with parent station names and exact IDs. |
 
 All 27 read-only tools have views when live and archive sources are available.
 Only tools supported by the current configuration appear. `backfill_archive`
@@ -49,6 +50,18 @@ Dataset tabs separate collections
 such as hourly and daily forecasts. Tables provide text search, numeric-aware
 column sorting, and eight-row pages. These controls operate on the received
 result. They do not run a new archive query or retrieve rows beyond a server limit.
+
+The `list_stations` view includes a Devices table with station ID, station name,
+device ID, device type, and serial number. Search an exact ID or serial number to
+find its parent station. Numeric station and device IDs use ungrouped digits so
+they can be copied into configuration. Duplicate entries and missing fields stay
+visible. The view uses only the received station result and leaves it unchanged.
+If a numeric ID exceeds the browser's exact integer range, the cell reports
+`ID exceeds browser precision` instead of presenting a rounded ID for copying.
+Use `tempestkeep list-devices` to read that ID; text IDs remain unchanged.
+It examines at most 2,000 stations and 2,000 device entries,
+with a notice when either limit omits data. Its fixed columns also let table
+controls survive a refresh that temporarily returns no devices.
 
 The view displays at most 2,000 rows and 64 columns per table. It reports when
 these display limits omit data. The original structured tool result remains

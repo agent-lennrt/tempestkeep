@@ -16,6 +16,10 @@
   interval, precipitation type, and source. Defaults remain unchanged.
 - Read-only streaming access to stored observation metadata through
   `store.ArchiveObs` and `Store.EachArchiveObs`.
+- MCP `--device-id` and `TEMPEST_DEVICE_ID` selection for collection and the
+  default live station, with lazy resolution and explicit station overrides.
+- A searchable Devices table in the `list_stations` app, with parent stations,
+  exact identifiers, bounded traversal, and compatible refresh state.
 
 ### Changed
 
@@ -27,6 +31,11 @@
 - Report zero slope for repeated constant monthly temperatures and omit the
   undefined R². See [ADR 0009](docs/adr/0009-seasonal-trend-estimation.md).
 - Bump active development, plugin, and embedded app metadata to 0.4.0.
+- Choose the nearest eligible pressure sample on either side of the requested
+  window start. Sparse history can now use a pair spanning at least half the
+  window, and an older sample can no longer mask a closer reading after it.
+- Reject unsupported CLI report and export dates before configuration or archive
+  access, with usage status 2 and unchanged local calendar boundaries.
 
 ### Compatibility
 
@@ -41,6 +50,12 @@ five CSV columns and optional JSON fields. Metadata retains its stored units in
 SI and US exports. Older schemas expose unavailable metadata as missing. The
 store API additions do not change `model.Obs`. See
 [ADR 0010](docs/adr/0010-export-metadata-and-development-version.md).
+
+MCP now honors `TEMPEST_DEVICE_ID`; empty or zero keeps automatic selection.
+An invalid or inaccessible selection does not fall back to another live device.
+Sparse pressure results can change because comparison samples now match the
+documented nearest-reading rule. See
+[ADR 0011](docs/adr/0011-mcp-device-selection-and-pressure-samples.md).
 
 Existing archives need no migration. Version 0.4.0 remains a development target;
 no tag, release, plugin publication, or merge is part of this change.

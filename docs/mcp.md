@@ -22,6 +22,7 @@ Provide configuration in the client's private environment:
 |---|---|---|
 | `TEMPEST_TOKEN` | Empty | Enables live API operations. With a writable archive, it also enables collection. |
 | `TEMPEST_DB` | `./tempest.sqlite` if that file exists | Selects one local SQLite archive. Set an explicit path to create a new archive with live access. |
+| `TEMPEST_DEVICE_ID` | First accessible Tempest device | Positive ID of a Tempest (`ST`) device for collection and the default live station. Empty or zero selects automatically. |
 | `TEMPEST_READ_ONLY` | False | `1`, `true`, `yes`, or `on` removes archive write tools. Values are case-insensitive. |
 | `TEMPEST_CACHE_TTL` | 300 | Seconds to cache live API responses, from 0 through 86400. Zero disables caching. |
 | `TEMPEST_THROTTLE_MS` | 400 | Delay between collection requests, from 0 through 60000 milliseconds. Zero disables the delay. |
@@ -38,7 +39,8 @@ Do not pass a token as a command argument. Use the client's secret store or
 private environment. An alternate API endpoint receives the token. Use only
 synthetic tokens with plaintext HTTP test endpoints.
 
-`--db` selects an archive. `--read-only` disables archive writes. Either
+`--db` selects an archive. `--device-id` selects a positive device ID and overrides
+`TEMPEST_DEVICE_ID`. `--read-only` disables archive writes. Either
 `--read-only` or a true `TEMPEST_READ_ONLY` disables writes, so
 `--read-only=false` cannot override a true environment value. Read-only mode
 still permits live API calls when a token exists.
@@ -64,10 +66,28 @@ With all capabilities enabled, the server exposes 29 tools. Use the client's
 tool discovery to determine availability. Do not assume that every deployment
 has live access or write access.
 
-The server selects the first Tempest device found for the token. MCP does not
-use `TEMPEST_DEVICE_ID`, which applies to CLI collection. If a token can access
-multiple devices, make sure that the selected device matches the archive.
-The archive rejects writes for a different device.
+If the token can access several devices, call `list_stations` or run
+`tempestkeep list-devices` to find the intended Tempest device. Set its ID through
+`TEMPEST_DEVICE_ID` or `mcp --device-id` before collecting. The server resolves
+the selection on its first live request. An unknown device or a non-Tempest
+device fails that request without selecting another live station. Failed
+resolution can be retried, subject to the configured API cache lifetime.
+Without a selection, the server uses the first
+accessible Tempest device. The archive rejects writes for a different device.
+
+The selected device sets the default station for live conditions and forecasts,
+which remain station-level API results. It also selects the exact device for
+archive collection. An explicit tool `station_id` overrides the station for that
+read only. `list_stations` still lists every accessible station. With no token,
+a valid device setting does not change archive-only reads. Current conditions
+can still fall back to the archive and report `source: "archive"` if live access
+fails. Failed station resolution never labels an archive with another station.
+
+Malformed or negative environment IDs fail before archive or API access. Explicit
+flag IDs must be positive; a valid flag overrides an invalid environment value.
+An inaccessible positive ID is discovered lazily, so writable startup can create
+an empty archive before that first live failure. It does not bind or collect
+observations for the failed selection.
 
 `station_info` adds live station metadata only when the archive's device
 belongs to that station. Missing or mismatched identity leaves those fields

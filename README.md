@@ -149,7 +149,9 @@ For an existing archive without live access, omit `TEMPEST_TOKEN` and add
 environment or loaded from `.env`. The server reads `.env` from its working
 directory, which can differ from your terminal's directory.
 
-If the token can access several devices, read the
+If the token can access several devices, use `list_stations` or
+`tempestkeep list-devices` to find the intended device. Set `TEMPEST_DEVICE_ID`
+or add `--device-id` with that ID to the MCP arguments. See the
 [device selection rules](docs/mcp.md#capabilities) before collecting.
 
 The host launches `tempestkeep mcp` and exchanges JSON-RPC over stdin/stdout.

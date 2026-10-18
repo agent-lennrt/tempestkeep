@@ -51,6 +51,10 @@ A daylight-saving transition can make a local day 23 or 25 hours long. Do not
 assume that every local day contains 1440 one-minute observations. Prefer the
 calendar tools to SQL that applies a fixed UTC offset across changing dates.
 
+CLI `stats` and `export` validate resolved dates before configuration and archive
+access. UTC bounds must stay within 1970-01-01 through 9999-12-31 and differ by
+at most 36,600 days. An invalid range returns usage status 2.
+
 `get_observations` uses fixed-duration buckets aligned to the Unix epoch.
 Its timestamps identify bucket starts. A large bucket does not necessarily
 start at local midnight, and the first or last bucket can contain only part
@@ -123,6 +127,14 @@ pressure.
 sample span. It is not necessarily a measured change over exactly three hours.
 The separate `pressure_trend` tool retains the historical samples' time, span,
 and actual change, along with the normalized rate.
+
+Pressure tendency uses the latest nonmissing pressure reading and the earlier
+reading closest to the requested window start. It considers samples before and
+after that target, with the older sample winning an equal-distance tie. The pair
+must span at least half the requested window, rounded up to whole seconds. A
+three-hour request can therefore use a two-hour pair, while a recent cluster
+under 90 minutes cannot establish that trend. Missing pressure readings do not
+count as samples. Inspect the returned span when the archive is sparse.
 
 `get_observations` preserves temperature means, minima, and maxima. It uses
 mean wind speed, maximum gust and UV, and total rain and lightning per bucket.

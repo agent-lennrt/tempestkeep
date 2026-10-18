@@ -71,7 +71,9 @@ bin/tempestkeep list-devices
 
 This output includes station and device identifiers. Keep it private. If your
 token can access several devices, select the intended Tempest device for
-collection with `--device-id` or `TEMPEST_DEVICE_ID`.
+CLI collection or MCP with `--device-id` or `TEMPEST_DEVICE_ID`. For MCP, this
+also sets the default live station; explicit tool station arguments can override
+individual reads. See the [MCP selection rules](../../docs/mcp.md#capabilities).
 
 ## Collection
 
@@ -188,6 +190,12 @@ bin/tempestkeep stats --start 2025-06-01 --end 2025-06-30 --format json
 Both dates are local calendar dates. The end date includes the entire day.
 Without a start date, the range starts at the beginning of the archive.
 Without an end date, the range ends at the current time.
+
+Both `stats` and `export` reject unsupported dates before loading configuration
+or opening an archive. Resolved UTC timestamps must fall between 1970-01-01
+00:00:00 and 9999-12-31 23:59:59. The inclusive bounds can differ by at most
+36,600 days. Invalid ranges return usage status 2. Valid dates still use local
+calendar boundaries, including 23-hour and 25-hour daylight-saving days.
 
 The range applies to rain, wind, lightning, solar, pressure, comfort, and
 weather-spell sections. Coverage, records, and temperature trend always

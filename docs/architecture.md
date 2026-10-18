@@ -44,6 +44,12 @@ rejects an explicit different observation type, mismatched device ID, failed API
 status, or observation outside the requested range. Missing optional identity
 fields remain compatible with older responses.
 
+MCP resolves its configured Tempest device lazily from accessible stations. The
+positive `--device-id` flag overrides `TEMPEST_DEVICE_ID`; empty or zero
+environment values retain automatic selection. Only successful resolution is
+cached. The exact device controls collection, while its parent station controls
+default live reads. Explicit station arguments do not replace that default.
+
 The model validates array width, epoch, numeric fields, and physical bounds.
 It copies retained pointer values. One malformed row rejects the complete
 response. The client does not cache rejected JSON or observation responses.
@@ -77,6 +83,11 @@ precipitation type, and source. The CLI includes those fields only with
 `--metadata`. It discovers optional columns through a fixed allowlist, treats
 absent legacy columns as missing, and bounds source text before loading it.
 No file-wide result buffer or archive migration is needed.
+
+Pressure tendency probes the indexed predecessor and successor around the
+requested window start. It chooses the nearest eligible reading, with an older
+tie winner and at least half a window between samples. The rate uses the actual
+sample span. It does not sort the full archive by distance from the target.
 
 ## SQLite ownership
 
