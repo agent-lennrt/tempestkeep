@@ -61,6 +61,18 @@ export const wind = {
   sectors: sectors.map((sector, i) => ({ sector, count: i < 8 ? 200 : 1550, pct: (i < 8 ? 200 : 1550) / 140, avg_mph: rounded(4 + Math.sin(i) * 2), max_gust_mph: rounded(11 + Math.sin(i) * 4) })),
 };
 
+export const stations = {
+  stations: [
+    { station_id: 100001, name: 'Demo garden', latitude: 0, longitude: 0, timezone: 'UTC', devices: [
+      { device_id: 123456, device_type: 'ST', serial_number: 'ST-SYNTHETIC-GARDEN' },
+      { device_id: 234567, device_type: 'HB', serial_number: 'HB-SYNTHETIC-GARDEN' },
+    ] },
+    { station_id: 200002, name: 'Demo roof', latitude: 0, longitude: 0, timezone: 'UTC', devices: Array.from({ length: 10 }, (_, i) => ({
+      device_id: 456700 + i, device_type: 'ST', serial_number: `ST-SYNTHETIC-ROOF-${i}`,
+    })) },
+  ],
+};
+
 export const fixtures = {
   weather: { tool: 'get_observations', args: { start: day(13), end: day(13), bucket_minutes: 30 }, data: observations },
   table: { tool: 'query_sql', args: {
@@ -70,6 +82,7 @@ export const fixtures = {
   daily: { tool: 'daily_summary', args: { start: day(0), end: day(13) }, data: daily },
   forecast: { tool: 'forecast', args: { hours: 24, days: 7 }, data: forecast },
   wind: { tool: 'wind_rose', args: { start: day(0), end: day(13) }, data: wind },
+  stations: { tool: 'list_stations', args: {}, data: stations },
   conditions: { tool: 'current_conditions', args: {}, data: { source: 'archive', time: observations.points[30].time, age_seconds: 900, temp_f: 72.4, humidity_pct: 0, rain_today_in: 0, wind_mph: 4.6, gust_mph: 8.2, note: 'Synthetic archive fallback.' } },
 };
 

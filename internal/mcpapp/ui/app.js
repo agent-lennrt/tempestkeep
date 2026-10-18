@@ -100,7 +100,7 @@ function heroBlock(data, primary, rows) {
   } else {
     const total = object(data.total) ? data.total : data;
     const fields = Object.entries(total).filter(([key, value]) => number(value) && !/epoch|(^|_)id$/.test(key)).slice(0, 3);
-    const [key, value] = fields[0] ?? ["Readings", primary?.rows.length ?? 0];
+    const [key, value] = fields[0] ?? [tool === "list_stations" ? primary?.name ?? "stations" : "Readings", primary?.rows.length ?? 0];
     main.append(el("div", "hero-label", label(key)));
     const big = el("div", "hero-value"); big.append(numberValue(value, key)); main.append(big, el("div", "hero-note", "From the returned tool result")); hero.append(main);
     fields.slice(1).forEach(([field, val]) => hero.append(stat(label(field), val, field, "", true)));
@@ -167,7 +167,7 @@ function tablePanel() {
   const table = state.tables[state.table];
   const panel = el("section", "panel"); panel.id = "data-panel";
   const head = el("div", "panel-head"), title = el("div");
-  title.append(el("h2", "", tool === "query_sql" ? "Query results" : "Explore the readings"), el("p", "panel-description", table.sql ? "Original column names and values · Units follow your SELECT" : "Click a column to sort · Search across all returned rows"));
+  title.append(el("h2", "", tool === "query_sql" ? "Query results" : tool === "list_stations" ? label(table.name) : "Explore the readings"), el("p", "panel-description", table.sql ? "Original column names and values · Units follow your SELECT" : tool === "list_stations" && table.name === "devices" ? "Devices supplied by each station · Search by ID, type, serial, or station" : "Click a column to sort · Search across all returned rows"));
   head.append(title, el("span", "badge", `${table.rows.length.toLocaleString()} rows`)); panel.append(head);
   const tools = el("div", "table-tools"), tabs = el("div", "tabs");
   tabs.setAttribute("aria-label", "Datasets");
@@ -177,7 +177,7 @@ function tablePanel() {
     }, `dataset:${dataset.name}`); tab.setAttribute("aria-pressed", String(i === state.table)); tabs.append(tab);
   });
   const searchWrap = el("label", "search-wrap"); searchWrap.append(el("span", "sr-only", "Search rows"));
-  const search = el("input", "search"); search.id = "search"; search.type = "search"; search.placeholder = "Search readings…"; search.value = state.search; search.maxLength = 200; search.dataset.tableFocus = "search";
+  const search = el("input", "search"); search.id = "search"; search.type = "search"; search.placeholder = tool === "list_stations" ? `Search ${table.name}…` : "Search readings…"; search.value = state.search; search.maxLength = 200; search.dataset.tableFocus = "search";
   search.addEventListener("input", () => { state.search = search.value; state.page = 0; renderRows(); }); searchWrap.append(search); tools.append(tabs, searchWrap); panel.append(tools);
   const scroll = el("div", "table-scroll"); scroll.tabIndex = 0; scroll.dataset.tableFocus = "table"; scroll.setAttribute("role", "region"); scroll.setAttribute("aria-label", "Scrollable data table");
   const grid = el("table"); grid.id = "data-table";
@@ -197,7 +197,7 @@ function tablePanel() {
   const previous = button("‹", "button", () => { state.page--; renderRows(); }, "previous"); previous.id = "previous"; previous.setAttribute("aria-label", "Previous page");
   const next = button("›", "button", () => { state.page++; renderRows(); }, "next"); next.id = "next"; next.setAttribute("aria-label", "Next page");
   pagination.append(previous, pageInfo, next); bottom.append(info, pagination); panel.append(bottom);
-  if (table.limited) panel.append(el("p", "note", "Display limited to 2,000 rows and 64 columns. Narrow the tool request to inspect more."));
+  if (table.limited) panel.append(el("p", "note", table.limitNotice ?? "Display limited to 2,000 rows and 64 columns. Narrow the tool request to inspect more."));
   return panel;
 }
 function renderRows() {
@@ -212,10 +212,10 @@ function renderRows() {
     const tr = el("tr");
     table.columns.forEach(column => {
       const value = cell(row, column), td = el("td", number(value) ? "numeric" : value == null ? "null" : "", formatted(value, column.raw, table.sql));
-      td.title = value == null ? "Missing reading" : text(value); tr.append(td);
+      td.title = value == null ? "Missing reading" : ["device_id", "station_id"].includes(column.raw) ? formatted(value, column.raw, table.sql) : text(value); tr.append(td);
     }); body.append(tr);
   }
-  if (!rows.length) { const tr = el("tr"), td = el("td", "empty", query ? "No rows match your search." : "No readings returned for this range."); td.colSpan = Math.max(1, table.columns.length); tr.append(td); body.append(tr); }
+  if (!rows.length) { const tr = el("tr"), td = el("td", "empty", query ? "No rows match your search." : tool === "list_stations" ? `No ${table.name} returned.` : "No readings returned for this range."); td.colSpan = Math.max(1, table.columns.length); tr.append(td); body.append(tr); }
   byId("row-count").textContent = rows.length ? `${state.page * PAGE_SIZE + 1}–${Math.min((state.page + 1) * PAGE_SIZE, rows.length)} of ${rows.length.toLocaleString()} rows${query ? ` · ${table.rows.length} before filtering` : ""}` : "0 rows";
   byId("page-info").textContent = `${state.page + 1} / ${pages}`;
   byId("previous").disabled = state.page === 0; byId("next").disabled = state.page >= pages - 1;

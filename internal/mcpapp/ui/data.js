@@ -34,6 +34,7 @@ export function label(key) {
 export function formatted(value, key = "", sql = false) {
   if (!number(value)) return text(value);
   if (sql) return String(value); // Do not round arbitrary SQL precision or infer units.
+  if (key === "device_id" || key === "station_id") return Number.isInteger(value) && !Number.isSafeInteger(value) ? "ID exceeds browser precision" : String(value);
   const precision = /inhg|rain|_in$/.test(key) ? 3 : 2;
   return value.toLocaleString("en-US", { maximumFractionDigits: precision });
 }
@@ -58,6 +59,30 @@ function observationDisplay(rows) {
   });
   return { rows: displayRows, coverage };
 }
+function stationDevices(stations) {
+  const rows = [];
+  let visited = 0, limited = stations.length > MAX_ROWS;
+  // Bound both dimensions, including empty stations and malformed entries.
+  // Known fields are copied without mutating or recursively inspecting results.
+  for (let i = 0; i < Math.min(stations.length, MAX_ROWS); i++) {
+    const station = stations[i];
+    if (!object(station) || !Array.isArray(station.devices)) continue;
+    const devices = station.devices, count = Math.min(devices.length, MAX_ROWS - visited);
+    if (count < devices.length) limited = true;
+    for (let j = 0; j < count; j++) {
+      const device = devices[j]; visited++;
+      if (!object(device)) continue;
+      rows.push({
+        station_id: cell(station, { key: "station_id" }), station_name: cell(station, { key: "name" }),
+        device_id: cell(device, { key: "device_id" }), device_type: cell(device, { key: "device_type" }),
+        serial_number: cell(device, { key: "serial_number" }),
+      });
+    }
+  }
+  const columns = [["station_id", "Station ID"], ["station_name", "Station name"], ["device_id", "Device ID"], ["device_type", "Device type"], ["serial_number", "Serial number"]].map(([key, title]) => ({ key, title, raw: key }));
+  return { name: "devices", columns, rows, sql: false, limited,
+    limitNotice: "Device inspection is limited to 2,000 stations and 2,000 device entries. Some returned data is not shown. Search covers displayed entries only; inspect the original tool result for more." };
+}
 export function datasets(data, tool = "") {
   if (Array.isArray(data.columns) && Array.isArray(data.rows)) {
     const columns = data.columns.slice(0, MAX_COLUMNS).map((key, index) => ({ key: String(index), title: text(key, 160), raw: text(key, 160) }));
@@ -66,6 +91,7 @@ export function datasets(data, tool = "") {
   const tables = [];
   for (const [name, value] of Object.entries(data).slice(0, MAX_COLUMNS)) {
     if (!Array.isArray(value)) continue;
+    if (tool === "list_stations" && name === "devices") continue; // Reserved for the parent-linked view below.
     const receivedRows = value.slice(0, MAX_ROWS).filter(object);
     const { rows, coverage } = tool === "get_observations" && name === "points" ? observationDisplay(receivedRows) : { rows: receivedRows };
     const keys = [...new Set(rows.flatMap(row => Object.keys(row).slice(0, MAX_COLUMNS)))];
@@ -73,6 +99,7 @@ export function datasets(data, tool = "") {
     const columns = displayKeys.slice(0, MAX_COLUMNS).map(key => ({ key, title: `${label(key)}${unit(key) ? ` (${unit(key)})` : ""}`, raw: key }));
     tables.push({ name, columns, rows, coverage, limited: value.length > MAX_ROWS || keys.length > MAX_COLUMNS, sql: false });
   }
+  if (tool === "list_stations" && Array.isArray(data.stations)) tables.push(stationDevices(data.stations));
   return tables;
 }
 export function cell(row, column) {
