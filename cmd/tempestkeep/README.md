@@ -230,6 +230,36 @@ corresponding key. A missing temperature is not 0°C. See the
 [query guide](../../docs/querying.md#units-and-aggregation) for interval totals
 and aggregation rules.
 
+Add `--metadata` to include stored observation context:
+
+```sh
+bin/tempestkeep export --format jsonl --metadata
+```
+
+The flag appends these CSV columns after the existing sensor columns. JSON Lines
+adds the corresponding keys when their stored values are present:
+
+| Field | Meaning |
+|---|---|
+| `device_id` | Device identifier stored with the observation. |
+| `report_interval_min` | Report interval in minutes. |
+| `wind_interval_s` | Wind sampling interval in seconds. |
+| `precip_type` | Stored precipitation code: 0 none, 1 rain, 2 hail, 3 rain and hail. |
+| `source` | Stored observation source, such as `rest`. |
+
+These fields retain their stored values and units under `--units us`. Missing
+values stay empty in CSV or absent in JSON; a known zero stays zero. If an older
+archive lacks a metadata column, its values are missing. Source text is limited
+to 1,024 UTF-8 bytes per row. Longer or invalid UTF-8 source values fail the
+export rather than being silently changed. Omitting `--metadata` preserves the existing output.
+
+Use `solar_wm2 * report_interval_min * 60 / 1000000` for each row's solar-energy
+estimate in MJ/m². Match the archive report by including only present solar
+readings with report intervals greater than zero and no more than 1,440 minutes.
+For example, 100 W/m² over one minute gives 0.006 MJ/m². Missing intervals cannot
+be reconstructed from an assumed sampling rate. This estimate does not establish
+continuous sensor coverage or replace a restorable archive backup.
+
 Exports contain private weather observations. For a saved export on Unix-like
 systems, use a protected destination and an owner-only creation mask:
 

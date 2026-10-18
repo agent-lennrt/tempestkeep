@@ -301,6 +301,7 @@ const (
 	MaxRangeSeconds       = int64(100 * 366 * 24 * time.Hour / time.Second)
 	MaxSeriesPoints       = 2000
 )
+const MaxArchiveSourceBytes = 1024
 VARIABLES
 var (
 	ErrInvalidArgument = errors.New("invalid argument")
@@ -312,6 +313,14 @@ var (
 	ErrArchiveIO       = errors.New("archive I/O failure")
 )
 TYPES
+type ArchiveObs struct {
+	model.Obs
+	DeviceID            *int64   `json:"device_id,omitempty"`
+	ReportIntervalMin   *float64 `json:"report_interval_min,omitempty"`
+	WindIntervalSeconds *float64 `json:"wind_interval_s,omitempty"`
+	PrecipType          *float64 `json:"precip_type,omitempty"`
+	Source              *string  `json:"source,omitempty"`
+}
 type ClimateIndexParams struct {
 	FrostMaxF         float64 // frost day: daily low below this (default 32°F / 0°C)
 	IceMaxF           float64 // ice day: daily high stays below this (default 32°F)
@@ -538,6 +547,7 @@ func (s *Store) ComfortStatistics(ctx context.Context, startEpoch, endEpoch int6
 func (s *Store) Coverage(ctx context.Context) (Coverage, error)
 func (s *Store) DailySummary(ctx context.Context, startEpoch, endEpoch int64) ([]DayStat, error)
 func (s *Store) DegreeDays(ctx context.Context, p DegreeDayParams, startEpoch, endEpoch int64) (DegreeDayStat, []DegreeDayStat, error)
+func (s *Store) EachArchiveObs(ctx context.Context, startEpoch, endEpoch int64, fn func(ArchiveObs) error) (err error)
 func (s *Store) EachObs(ctx context.Context, startEpoch, endEpoch int64, fn func(model.Obs) error) (err error)
 func (s *Store) Gaps(ctx context.Context, minSeconds int64, limit int) (_ []Gap, err error)
 func (s *Store) HourlyClimatology(ctx context.Context, startEpoch, endEpoch int64) (_ []HourStat, err error)

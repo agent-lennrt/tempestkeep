@@ -278,11 +278,12 @@ func nf(n sql.NullFloat64) *float64 {
 	return nil
 }
 
-func scanObs(rows *sql.Rows) (model.Obs, error) {
+func scanObs(rows *sql.Rows, extra ...any) (model.Obs, error) {
 	var o model.Obs
 	var lull, avg, gust, dir, pmb, temp, hum, lux, uv, solar, rain, sdist, scount, batt sql.NullFloat64
-	if err := rows.Scan(&o.Epoch, &lull, &avg, &gust, &dir, &pmb, &temp, &hum,
-		&lux, &uv, &solar, &rain, &sdist, &scount, &batt); err != nil {
+	destinations := []any{&o.Epoch, &lull, &avg, &gust, &dir, &pmb, &temp, &hum,
+		&lux, &uv, &solar, &rain, &sdist, &scount, &batt}
+	if err := rows.Scan(append(destinations, extra...)...); err != nil {
 		return o, err
 	}
 	o.WindLullMps, o.WindAvgMps, o.WindGustMps, o.WindDirDeg = nf(lull), nf(avg), nf(gust), nf(dir)

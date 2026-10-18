@@ -119,8 +119,10 @@ the database manually. Transfer a completed backup or export between machines.
 ## Recover an archive from a backup
 
 Use a completed SQLite backup for recovery. CSV and JSON Lines exports omit
-collector metadata and some stored columns. TempestKeep does not provide an
-export-import command that reconstructs the archive.
+collector progress metadata. Default exports also omit observation metadata;
+`export --metadata` includes available stored intervals and provenance.
+TempestKeep does not provide an export-import command that reconstructs the
+archive.
 
 1. Stop TempestKeep processes that write to the affected archive.
 2. Copy a known-good backup to a new, unused local archive path.

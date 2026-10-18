@@ -99,6 +99,12 @@ subtract overlaps between intervals. Gaps receive no estimated energy.
 interval. `days_observed` counts all days with stored observations, including
 days without solar readings.
 
+To reproduce this estimate outside TempestKeep, use `export --metadata` in CSV
+or JSON Lines format. It includes each available `report_interval_min` beside
+`solar_wm2`; both stay in the same units under `--units us`. The default export
+omits report intervals. See the [export guide](../cmd/tempestkeep/README.md#export-observations)
+for missing-value rules and the optional fields.
+
 Treat insolation as an estimate from reported intervals. A station's sunlight
 measurements do not measure a solar panel's electrical output.
 
