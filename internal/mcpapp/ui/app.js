@@ -1,5 +1,5 @@
 import { App, applyDocumentTheme, applyHostStyleVariables } from "@modelcontextprotocol/ext-apps";
-import { PAGE_SIZE, MAX_COLUMNS, number, object, text, pretty, label, unit, formatted, datasets, numericColumns, cell, compare, dateLabel, timeLabel } from "./data.js";
+import { PAGE_SIZE, MAX_COLUMNS, number, object, text, pretty, label, unit, formatted, datasets, numericColumns, cell, compare, dateLabel, timeLabel, rainSummaryDisplay } from "./data.js";
 import { seriesChart, windChart } from "./charts.js";
 
 const TITLES = {
@@ -87,7 +87,14 @@ function heroBlock(data, primary, rows) {
   const main = el("div");
   const conditions = tool === "current_conditions" ? data : tool === "forecast" ? data.current : null;
   const temperature = conditions ? conditions.temp_f : aggregate(rows, "temp_avg_f");
-  if (tool === "query_sql") {
+  if (tool === "rain_stats") {
+    main.append(el("div", "hero-label", "Rainfall"));
+    const value = el("div", "hero-value"); value.append(numberValue(data.total_in, "total_in"));
+    main.append(value, el("div", "hero-note", data.total_in == null ? "Rainfall unavailable" : "Total of reported rain readings"));
+    hero.append(main,
+      stat("Days observed", data.days_observed, "", "Days with stored observations", true),
+      stat("Rainy days", data.rainy_days, "", "At least 0.01 in of reported rain", true));
+  } else if (tool === "query_sql") {
     main.append(el("div", "hero-label", "A closer look at your data"), el("div", "hero-value", `${primary?.rows.length.toLocaleString() ?? 0} rows to explore`), el("div", "hero-note", "Search, sort, and discover patterns in your result."));
     hero.append(main, stat("Columns", primary?.columns.length ?? 0, "", "As selected by your query", true), stat("Result", data.truncated ? "Capped" : "Complete", "", data.truncated ? "More rows exist on the server" : "All returned rows available", true));
   } else if (conditions || temperature !== null) {
@@ -137,6 +144,14 @@ function coverageNotice(table) {
   });
   const notice = el("p", "note", `Sensor coverage is incomplete. ${descriptions.join(" ")} Totals include reported readings only; missing buckets display —. Reading counts describe samples, not continuous uptime.`);
   notice.id = "sensor-coverage";
+  return notice;
+}
+function rainSummaryNotice(data) {
+  const observations = data.observations, readings = data.rain_readings;
+  if (![observations, readings].every(value => Number.isSafeInteger(value) && value >= 0) || readings > observations) return null;
+  const condition = observations === 0 ? "No observations in this range. Rainfall is unavailable. " : readings === 0 ? "No rain readings were reported. Rainfall and rain statistics are unavailable. " : readings < observations ? "Partial rainfall total: includes reported readings only. " : "";
+  const notice = el("p", "note", `${condition}Rain readings: ${formatted(readings)} of ${formatted(observations)} stored observations. Counts describe stored samples, not continuous coverage.`);
+  notice.id = "rain-coverage";
   return notice;
 }
 function chartPanel(table, selectedIndex = 0) {
@@ -235,13 +250,15 @@ function detailsPanel(data) {
   details.append(list); return details;
 }
 function render() {
-  const data = state.data; if (!data) return;
+  if (!state.data) return;
+  const data = rainSummaryDisplay(state.data, tool);
   const table = state.tables[state.table], rows = table?.sql ? [] : table?.rows ?? [];
   byId("subtitle").textContent = data.from || data.to ? `${timeLabel(data.from ?? "Archive start")} — ${timeLabel(data.to ?? "Latest reading")}` : data.station || data.name || (data.time ? timeLabel(data.time) : "Your tool result, ready to explore.");
   byId("eyebrow").textContent = tool === "query_sql" ? "YOUR ARCHIVE, YOUR QUESTIONS" : tool === "forecast" ? "A LOOK AT WHAT'S AHEAD" : "YOUR WEATHER, IN CONTEXT";
   content.replaceChildren(heroBlock(data, table, rows));
   const cards = metricCards(data, rows); if (cards.childElementCount) content.append(cards);
   const coverage = coverageNotice(table); if (coverage) content.append(coverage);
+  if (tool === "rain_stats") { const rainCoverage = rainSummaryNotice(data); if (rainCoverage) content.append(rainCoverage); }
   if (table) { const chart = tool === "wind_rose" && table.name === "sectors" ? windPanel(data, table) : chartPanel(table); if (chart) content.append(chart); content.append(tablePanel()); renderRows(); }
   if (data.truncated === true) content.append(el("p", "note", "Result truncated by the server. Search and pagination cover returned rows only. Narrow the query or increase max_rows within the server limit to see more."));
   if (typeof data.note === "string" && data.note) content.append(el("p", "note", text(data.note)));

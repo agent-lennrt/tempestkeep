@@ -59,6 +59,16 @@ function observationDisplay(rows) {
   });
   return { rows: displayRows, coverage };
 }
+export function rainSummaryDisplay(data, tool) {
+  if (tool !== "rain_stats" || data.rain_readings !== 0) return data;
+  // Keep coverage counts and the original payload intact. No rain samples can
+  // establish a rainfall total, rainy-day count, or weather spell statistic.
+  const display = { ...data, total_in: null };
+  for (const field of ["rainy_days", "longest_dry_spell_days", "longest_wet_spell_days", "wettest_day_in"]) {
+    if (Object.hasOwn(data, field)) display[field] = null;
+  }
+  return display;
+}
 function stationDevices(stations) {
   const rows = [];
   let visited = 0, limited = stations.length > MAX_ROWS;

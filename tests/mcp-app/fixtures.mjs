@@ -73,6 +73,11 @@ export const stations = {
   ],
 };
 
+export const rainSummary = {
+  from: day(0), to: day(2), total_in: null, observations: 12, rain_readings: 0,
+  days_observed: 3, rainy_days: 0, longest_dry_spell_days: 0, longest_wet_spell_days: 0,
+};
+
 export const fixtures = {
   weather: { tool: 'get_observations', args: { start: day(13), end: day(13), bucket_minutes: 30 }, data: observations },
   table: { tool: 'query_sql', args: {
@@ -83,6 +88,7 @@ export const fixtures = {
   forecast: { tool: 'forecast', args: { hours: 24, days: 7 }, data: forecast },
   wind: { tool: 'wind_rose', args: { start: day(0), end: day(13) }, data: wind },
   stations: { tool: 'list_stations', args: {}, data: stations },
+  rain: { tool: 'rain_stats', args: { start: day(0), end: day(2) }, data: rainSummary },
   conditions: { tool: 'current_conditions', args: {}, data: { source: 'archive', time: observations.points[30].time, age_seconds: 900, temp_f: 72.4, humidity_pct: 0, rain_today_in: 0, wind_mph: 4.6, gust_mph: 8.2, note: 'Synthetic archive fallback.' } },
 };
 
