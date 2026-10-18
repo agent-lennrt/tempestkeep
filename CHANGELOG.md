@@ -20,6 +20,8 @@
   default live station, with lazy resolution and explicit station overrides.
 - A searchable Devices table in the `list_stations` app, with parent stations,
   exact identifiers, bounded traversal, and compatible refresh state.
+- Observation and rain-reading counts in rain summaries, with missing/partial
+  coverage guidance in CLI reports, MCP results, and the rainfall app view.
 
 ### Changed
 
@@ -36,6 +38,10 @@
   window, and an older sample can no longer mask a closer reading after it.
 - Reject unsupported CLI report and export dates before configuration or archive
   access, with usage status 2 and unchanged local calendar boundaries.
+- Return a null rain summary total when no rain readings exist. Preserve measured
+  zero and sum only reported values in partially observed ranges.
+- Lead the docs overview with multi-station workflows and guides to interactive
+  charts, table refresh, archive repair, metadata exports, and offline analysis.
 
 ### Compatibility
 
@@ -56,6 +62,13 @@ An invalid or inaccessible selection does not fall back to another live device.
 Sparse pressure results can change because comparison samples now match the
 documented nearest-reading rule. See
 [ADR 0011](docs/adr/0011-mcp-device-selection-and-pressure-samples.md).
+
+`RainStats.TotalIn` changes from `float64` to `*float64`; Go callers must check
+for nil. CLI rain JSON and MCP `rain_stats` now always encode `total_in` as a
+number or `null`, with `observations` and `rain_readings` counts. Consumers must
+accept null and the additional fields. Day counts, thresholds, spell rules,
+and other rain aggregate types retain their contracts. Counts describe samples,
+not continuous coverage. See [ADR 0012](docs/adr/0012-rain-summary-coverage.md).
 
 Existing archives need no migration. Version 0.4.0 remains a development target;
 no tag, release, plugin publication, or merge is part of this change.

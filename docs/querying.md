@@ -90,6 +90,28 @@ Rain and lightning increments cover each row's report interval, which can
 differ from one minute. Sum the increments without multiplying by interval
 length.
 
+`rain_stats` and the rain section of CLI `stats --format json` include
+`observations`, `rain_readings`, and `total_in`. The counts cover stored samples
+within the inclusive query bounds:
+
+| Sample coverage | Meaning of `total_in` |
+|---|---|
+| No observations | `null`: the range contains no stored samples. |
+| Observations exist, no rain readings | `null`: rainfall is unknown. |
+| Some observations lack rain | A partial sum of reported readings, including measured zero. |
+| Every stored observation has rain | The sum of those readings, including measured zero. |
+
+Equal counts do not prove continuous coverage of the time range. No missing
+samples are filled or extrapolated. `days_observed` still counts days with any
+observation. Rainy days and wet/dry spells describe reported readings; a day
+without rain readings or a calendar gap ends a spell. A numeric zero count of
+recorded rainy days does not establish dry weather when rain readings are absent.
+Daily, period, and climate-normal rainfall fields retain their existing contracts.
+
+Go callers now check `RainStats.TotalIn` for nil before dereferencing it. JSON
+and MCP consumers must accept a number or explicit `null`; the key is always
+present. See [ADR 0012](adr/0012-rain-summary-coverage.md).
+
 `solar_stats` estimates solar energy by summing each `solar_wm2` reading times
 its positive `report_interval_min`, times 60, divided by 1,000,000. The result
 is MJ/m². For example, 100 W/m² over one reported minute contributes 0.006 MJ/m².

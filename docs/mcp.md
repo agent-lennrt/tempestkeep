@@ -249,6 +249,13 @@ and pressure, maxima for gusts and UV, and sums for rain and lightning.
 Empty time buckets are absent. See the [query guide](querying.md) for units,
 missing readings, comparison rules, and SQL examples.
 
+For a rainfall summary, call `rain_stats` with the same inclusive date arguments.
+Its `total_in` is `null` without rain readings and numeric zero for measured zero.
+`rain_readings` and `observations` describe stored sample coverage; a note marks
+missing or partial readings. Partial totals include reported measurements only.
+Counts do not establish continuous coverage of the range. The app keeps a
+rainfall headline even when the total is missing.
+
 ## Limits and failure behavior
 
 | Operation | Limit or default |

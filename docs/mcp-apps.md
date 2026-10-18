@@ -82,6 +82,13 @@ measured zero. If a count is below `obs`, the total covers only some samples.
 The view reports missing and partial buckets, and keeps their counts in the table.
 These counts describe samples, not continuous sensor uptime. Original tool
 results remain intact. Older results without counts retain their existing display.
+
+The Rainfall patterns view for `rain_stats` keeps rainfall as its headline even
+when no measurement is available. It shows missing rainfall and unavailable
+rain statistics as `—`, while measured zero stays zero. The sample-count notice
+distinguishes an empty range, absent rain readings, and a partial reported total.
+Counts describe stored samples, not continuous coverage. Refresh updates the
+total and notice together; original tool results and other views stay unchanged.
 See the [query guide](querying.md) for date boundaries, aggregation, and incomplete
 sensor coverage.
 

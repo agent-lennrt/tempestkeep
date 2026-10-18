@@ -201,6 +201,13 @@ The range applies to rain, wind, lightning, solar, pressure, comfort, and
 weather-spell sections. Coverage, records, and temperature trend always
 summarize the whole archive. This remains true in JSON output.
 
+The rain section shows unavailable rainfall when no rain readings exist. A
+measured zero remains `0.00 in`. Sample counts show how many stored observations
+reported rain, and a partial-coverage warning identifies totals based on only
+some readings. These counts do not prove continuous weather coverage.
+In JSON, `rain.total_in` is a number or explicit `null`; `rain.observations` and
+`rain.rain_readings` are always present. Missing rain does not hide other sections.
+
 Reports use US display units for temperature, wind, pressure, and rain.
 The command reads the archive without contacting WeatherFlow. See the
 [query guide](../../docs/querying.md) before interpreting gaps or trends.
