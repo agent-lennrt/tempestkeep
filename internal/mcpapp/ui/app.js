@@ -18,9 +18,10 @@ function el(tag, className, value) {
   if (value !== undefined) node.textContent = String(value);
   return node;
 }
-function button(value, className, callback) {
+function button(value, className, callback, tableFocus) {
   const node = el("button", className, value);
   node.type = "button"; node.addEventListener("click", callback);
+  if (tableFocus) node.dataset.tableFocus = tableFocus;
   return node;
 }
 function status(value = "", error = false) {
@@ -33,6 +34,26 @@ function updateRefresh() {
   const supported = Boolean(app.getHostCapabilities()?.serverTools);
   refresh.disabled = !validTool || !state.connected || !supported || !state.args || state.busy;
   refresh.title = !supported ? "This host does not support refreshing server tools." : !state.args ? "Waiting for the original tool arguments." : "Run this read-only tool again with its original arguments.";
+}
+function resetExploration() {
+  state.table = 0; state.search = ""; state.sort = null; state.direction = 1; state.page = 0; state.metric = "";
+}
+function compatibleTable(previous, next, previousData, nextData) {
+  return previous && next && previous.name === next.name && previous.sql === next.sql &&
+    previous.columns.length === next.columns.length && previous.columns.every((column, i) =>
+      column.key === next.columns[i].key && (previous.sql ? previousData.columns[i] === nextData.columns[i] : column.raw === next.columns[i].raw));
+}
+function tableFocus() {
+  const active = document.activeElement;
+  if (!document.hasFocus() || !active?.dataset.tableFocus || !byId("data-panel")?.contains(active)) return null;
+  return { key: active.dataset.tableFocus, selection: active.id === "search" ? [active.selectionStart, active.selectionEnd, active.selectionDirection] : null };
+}
+function restoreTableFocus(focus) {
+  if (!focus) return;
+  let control = [...byId("data-panel").querySelectorAll("[data-table-focus]")].find(node => node.dataset.tableFocus === focus.key);
+  if (control?.disabled) control = byId("search");
+  control?.focus({ preventScroll: true });
+  if (focus.selection && control?.id === "search") control.setSelectionRange(...focus.selection);
 }
 function hostContext(context) {
   if (!context) return;
@@ -153,12 +174,12 @@ function tablePanel() {
   state.tables.forEach((dataset, i) => {
     const tab = button(pretty(dataset.name), "tab", () => {
       state.table = i; state.page = 0; state.search = ""; state.sort = null; state.metric = ""; render();
-    }); tab.setAttribute("aria-pressed", String(i === state.table)); tabs.append(tab);
+    }, `dataset:${dataset.name}`); tab.setAttribute("aria-pressed", String(i === state.table)); tabs.append(tab);
   });
   const searchWrap = el("label", "search-wrap"); searchWrap.append(el("span", "sr-only", "Search rows"));
-  const search = el("input", "search"); search.id = "search"; search.type = "search"; search.placeholder = "Search readings…"; search.value = state.search; search.maxLength = 200;
+  const search = el("input", "search"); search.id = "search"; search.type = "search"; search.placeholder = "Search readings…"; search.value = state.search; search.maxLength = 200; search.dataset.tableFocus = "search";
   search.addEventListener("input", () => { state.search = search.value; state.page = 0; renderRows(); }); searchWrap.append(search); tools.append(tabs, searchWrap); panel.append(tools);
-  const scroll = el("div", "table-scroll"); scroll.tabIndex = 0; scroll.setAttribute("role", "region"); scroll.setAttribute("aria-label", "Scrollable data table");
+  const scroll = el("div", "table-scroll"); scroll.tabIndex = 0; scroll.dataset.tableFocus = "table"; scroll.setAttribute("role", "region"); scroll.setAttribute("aria-label", "Scrollable data table");
   const grid = el("table"); grid.id = "data-table";
   const caption = el("caption", "sr-only", `${TITLES[tool]}: ${pretty(table.name)}. Missing values are shown as an em dash.`); grid.append(caption);
   const thead = el("thead"), tr = el("tr");
@@ -169,12 +190,12 @@ function tablePanel() {
     th.append(button(column.title, "", () => {
       state.direction = state.sort === index ? -state.direction : 1; state.sort = index; state.page = 0;
       [...thead.querySelectorAll("th")].forEach((node, i) => node.setAttribute("aria-sort", state.sort === i ? state.direction === 1 ? "ascending" : "descending" : "none")); renderRows();
-    })); tr.append(th);
+    }, `sort:${index}`)); tr.append(th);
   }); thead.append(tr); grid.append(thead, el("tbody")); scroll.append(grid); panel.append(scroll);
   const bottom = el("div", "table-bottom"), info = el("span"); info.id = "row-count"; info.setAttribute("aria-live", "polite");
   const pagination = el("div", "pagination"), pageInfo = el("span"); pageInfo.id = "page-info";
-  const previous = button("‹", "button", () => { state.page--; renderRows(); }); previous.id = "previous"; previous.setAttribute("aria-label", "Previous page");
-  const next = button("›", "button", () => { state.page++; renderRows(); }); next.id = "next"; next.setAttribute("aria-label", "Next page");
+  const previous = button("‹", "button", () => { state.page--; renderRows(); }, "previous"); previous.id = "previous"; previous.setAttribute("aria-label", "Previous page");
+  const next = button("›", "button", () => { state.page++; renderRows(); }, "next"); next.id = "next"; next.setAttribute("aria-label", "Next page");
   pagination.append(previous, pageInfo, next); bottom.append(info, pagination); panel.append(bottom);
   if (table.limited) panel.append(el("p", "note", "Display limited to 2,000 rows and 64 columns. Narrow the tool request to inspect more."));
   return panel;
@@ -241,10 +262,20 @@ function receiveResult(result, preservePrevious = false) {
       data = JSON.parse(source);
     }
     if (!object(data)) throw new Error("The tool result is not a supported data object.");
-    state.data = data; state.tables = datasets(data, tool); state.table = tool === "forecast" ? Math.max(0, state.tables.findIndex(table => table.name === "hourly")) : 0; state.page = 0; state.search = ""; state.sort = null;
+    const previous = state.data ? state.tables[state.table] : null;
+    const tables = datasets(data, tool);
+    const selected = previous ? tables.findIndex(table => table.name === previous.name) : -1;
+    const compatible = compatibleTable(previous, tables[selected], state.data, data);
+    const focus = compatible ? tableFocus() : null;
+    // Read the current controls now, so changes made while a refresh was pending
+    // survive. Ordered identities keep duplicate SQL column positions distinct.
+    if (!compatible) resetExploration();
+    state.data = data; state.tables = tables;
+    state.table = selected >= 0 ? selected : tool === "forecast" ? Math.max(0, tables.findIndex(table => table.name === "hourly")) : 0;
     render(); status();
+    restoreTableFocus(focus);
   } catch (error) {
-    if (!preservePrevious) { content.replaceChildren(); state.data = null; state.tables = []; }
+    if (!preservePrevious) { content.replaceChildren(); state.data = null; state.tables = []; resetExploration(); }
     const detail = error instanceof SyntaxError ? "The tool returned invalid JSON. Run the tool again to retry." : text(error.message, 500);
     status(`${detail}${preservePrevious && state.data ? " The previous result is still shown." : ""}`, true);
   }
@@ -256,11 +287,11 @@ function receiveResult(result, preservePrevious = false) {
 app.ontoolinput = ({ arguments: args }) => {
   state.generation++;
   state.args = object(args) ? structuredClone(args) : args === undefined && tool !== "query_sql" ? {} : null;
-  state.busy = true; content.replaceChildren(); state.data = null;
+  state.busy = true; content.replaceChildren(); state.data = null; state.tables = []; resetExploration();
   status("Loading your weather data…"); updateRefresh();
 };
 app.ontoolresult = (result) => { state.generation++; receiveResult(result); };
-app.ontoolcancelled = () => { state.generation++; state.busy = false; content.replaceChildren(); state.data = null; status("This tool request was cancelled. Refresh to try again."); updateRefresh(); };
+app.ontoolcancelled = () => { state.generation++; state.busy = false; content.replaceChildren(); state.data = null; state.tables = []; resetExploration(); status("This tool request was cancelled. Refresh to try again."); updateRefresh(); };
 app.onhostcontextchanged = hostContext;
 app.onerror = () => { state.busy = false; status("The host connection encountered an error. Run the tool again if the view does not recover.", true); updateRefresh(); };
 app.onclose = () => { state.generation++; state.connected = false; state.busy = false; byId("connection").textContent = "Host disconnected"; status("The host disconnected. Run this tool again to reconnect.", true); updateRefresh(); };
@@ -283,6 +314,7 @@ window.addEventListener("resize", () => {
 refresh.addEventListener("click", async () => {
   if (refresh.disabled) return;
   const generation = ++state.generation;
+  const focused = document.activeElement === refresh;
   state.busy = true; status("Refreshing your tool result…"); updateRefresh();
   try {
     const result = await app.callServerTool({ name: tool, arguments: structuredClone(state.args) }, { timeout: 30000 });
@@ -290,6 +322,9 @@ refresh.addEventListener("click", async () => {
   } catch {
     if (generation !== state.generation) return;
     state.busy = false; status("Refresh failed. The previous result is still shown; try again when the host is ready.", true); updateRefresh();
+  } finally {
+    if (focused && generation === state.generation && !refresh.disabled && document.hasFocus() &&
+        (document.activeElement === document.body || document.activeElement === refresh)) refresh.focus({ preventScroll: true });
   }
 });
 byId("title").textContent = validTool ? TITLES[tool] : "Weather explorer";

@@ -252,9 +252,9 @@ cycles the month/year metric. The `g` or Home key returns to the latest period.
 The `q`, Esc, and Ctrl+C keys exit either dashboard.
 
 `tempestkeep version` reports the build's injected version, then Go's module
-version when available. If neither exists, it falls back to `v0.3.0-dev`.
+version when available. If neither exists, it falls back to `v0.4.0-dev`.
 `make build` injects a version from Git tags or that development fallback.
-Version 0.3.0 is the proposed next minor release. See [CHANGELOG.md](CHANGELOG.md)
+Version 0.4.0 is the proposed next minor release. See [CHANGELOG.md](CHANGELOG.md)
 for its scope. This change does not publish a release.
 
 ## Archive behavior
@@ -395,7 +395,7 @@ Tempest names and marks belong to their respective owners. See [NOTICE.md](NOTIC
 
 TempestKeep uses the MIT License. See [LICENSE](LICENSE).
 
-[version-badge]: https://img.shields.io/badge/development-v0.3.0--dev-blue
+[version-badge]: https://img.shields.io/badge/development-v0.4.0--dev-blue
 [ci-b]: https://img.shields.io/github/actions/workflow/status/lennrt/tempestkeep/ci.yml?branch=main
 [ci]: https://github.com/lennrt/tempestkeep/actions/workflows/ci.yml
 [license-badge]: https://img.shields.io/github/license/lennrt/tempestkeep
