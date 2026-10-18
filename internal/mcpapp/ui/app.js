@@ -105,7 +105,20 @@ function metricCards(data, rows) {
   }
   return cards;
 }
-function chartPanel(table) {
+function coverageNotice(table) {
+  if (!table?.coverage?.length) return null;
+  const bucketCount = count => `${count.toLocaleString()} ${count === 1 ? "bucket" : "buckets"}`;
+  const descriptions = table.coverage.map(sensor => {
+    const parts = [];
+    if (sensor.missing) parts.push(`${bucketCount(sensor.missing)} without readings`);
+    if (sensor.partial) parts.push(`${bucketCount(sensor.partial)} with partial readings`);
+    return `${sensor.name}: ${parts.join(", ")}.`;
+  });
+  const notice = el("p", "note", `Sensor coverage is incomplete. ${descriptions.join(" ")} Totals include reported readings only; missing buckets display —. Reading counts describe samples, not continuous uptime.`);
+  notice.id = "sensor-coverage";
+  return notice;
+}
+function chartPanel(table, selectedIndex = 0) {
   const columns = numericColumns(table);
   if (!columns.length || !table.rows.length || table.name === "sectors" || ["stations", "devices", "gaps"].includes(table.name)) return null;
   if (!columns.some(column => column.key === state.metric)) state.metric = columns.find(column => ["temp_avg_f", "temp_f", "high_f", "coverage_pct"].includes(column.key))?.key ?? columns[0].key;
@@ -116,8 +129,8 @@ function chartPanel(table) {
   columns.forEach(column => { const option = el("option", "", column.title); option.value = column.key; select.append(option); }); select.value = state.metric;
   select.addEventListener("change", () => { state.metric = select.value; const replacement = chartPanel(table); panel.replaceWith(replacement); replacement.querySelector("select").focus(); });
   head.append(title, select); panel.append(head);
-  const wrap = el("div", "chart-wrap"); wrap.append(seriesChart(table.rows, state.metric, tool === "get_observations" ? state.data.bucket_minutes : 0)); panel.append(wrap);
-  const foot = el("div", "chart-footer"); foot.append(el("span", "legend", label(state.metric)), el("span", "", table.rows.length <= 60 ? "Missing values leave gaps · Hover points for readings" : "Missing values leave gaps · Exact readings in the table")); panel.append(foot);
+  const wrap = el("div", "chart-wrap"); wrap.append(seriesChart(table.rows, state.metric, tool === "get_observations" ? state.data.bucket_minutes : 0, selectedIndex)); panel.append(wrap);
+  const foot = el("div", "chart-footer"); foot.append(el("span", "legend", label(state.metric)), el("span", "", "Missing values leave gaps · Only returned readings are shown")); panel.append(foot);
   return panel;
 }
 function windPanel(data, table) {
@@ -207,6 +220,7 @@ function render() {
   byId("eyebrow").textContent = tool === "query_sql" ? "YOUR ARCHIVE, YOUR QUESTIONS" : tool === "forecast" ? "A LOOK AT WHAT'S AHEAD" : "YOUR WEATHER, IN CONTEXT";
   content.replaceChildren(heroBlock(data, table, rows));
   const cards = metricCards(data, rows); if (cards.childElementCount) content.append(cards);
+  const coverage = coverageNotice(table); if (coverage) content.append(coverage);
   if (table) { const chart = tool === "wind_rose" && table.name === "sectors" ? windPanel(data, table) : chartPanel(table); if (chart) content.append(chart); content.append(tablePanel()); renderRows(); }
   if (data.truncated === true) content.append(el("p", "note", "Result truncated by the server. Search and pagination cover returned rows only. Narrow the query or increase max_rows within the server limit to see more."));
   if (typeof data.note === "string" && data.note) content.append(el("p", "note", text(data.note)));
@@ -227,7 +241,7 @@ function receiveResult(result, preservePrevious = false) {
       data = JSON.parse(source);
     }
     if (!object(data)) throw new Error("The tool result is not a supported data object.");
-    state.data = data; state.tables = datasets(data); state.table = tool === "forecast" ? Math.max(0, state.tables.findIndex(table => table.name === "hourly")) : 0; state.page = 0; state.search = ""; state.sort = null;
+    state.data = data; state.tables = datasets(data, tool); state.table = tool === "forecast" ? Math.max(0, state.tables.findIndex(table => table.name === "hourly")) : 0; state.page = 0; state.search = ""; state.sort = null;
     render(); status();
   } catch (error) {
     if (!preservePrevious) { content.replaceChildren(); state.data = null; state.tables = []; }
@@ -257,8 +271,13 @@ window.addEventListener("resize", () => {
   resizeFrame = requestAnimationFrame(() => {
     const table = state.tables[state.table], old = byId("chart-panel");
     if (!old || !table || tool === "wind_rose") return;
-    const replacement = chartPanel(table);
-    if (replacement) old.replaceWith(replacement);
+    const slider = old.querySelector("#chart-reading");
+    const focused = slider && document.activeElement === slider;
+    const replacement = chartPanel(table, Number(slider?.value ?? 0));
+    if (replacement) {
+      old.replaceWith(replacement);
+      if (focused) replacement.querySelector("#chart-reading")?.focus({ preventScroll: true });
+    }
   });
 });
 refresh.addEventListener("click", async () => {

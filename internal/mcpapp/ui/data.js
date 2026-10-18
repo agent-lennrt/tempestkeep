@@ -37,7 +37,28 @@ export function formatted(value, key = "", sql = false) {
   const precision = /inhg|rain|_in$/.test(key) ? 3 : 2;
   return value.toLocaleString("en-US", { maximumFractionDigits: precision });
 }
-export function datasets(data) {
+const eventSensors = [
+  { value: "rain_in", count: "rain_readings", name: "Rain" },
+  { value: "lightning_strikes", count: "lightning_readings", name: "Lightning" },
+];
+function observationDisplay(rows) {
+  const coverage = eventSensors.map(sensor => ({
+    name: sensor.name,
+    missing: rows.filter(row => row[sensor.count] === 0).length,
+    partial: rows.filter(row => number(row[sensor.count]) && row[sensor.count] > 0 && number(row.obs) && row[sensor.count] < row.obs).length,
+  })).filter(sensor => sensor.missing || sensor.partial);
+  // Keep the received result intact. Only explicit zero counts turn a numeric
+  // total into a missing display reading; older results without counts still work.
+  const displayRows = rows.map(row => {
+    const missing = eventSensors.filter(sensor => row[sensor.count] === 0);
+    if (!missing.length) return row;
+    const display = { ...row };
+    missing.forEach(sensor => { display[sensor.value] = null; });
+    return display;
+  });
+  return { rows: displayRows, coverage };
+}
+export function datasets(data, tool = "") {
   if (Array.isArray(data.columns) && Array.isArray(data.rows)) {
     const columns = data.columns.slice(0, MAX_COLUMNS).map((key, index) => ({ key: String(index), title: text(key, 160), raw: text(key, 160) }));
     return [{ name: "Results", columns, rows: data.rows.slice(0, MAX_ROWS).filter(Array.isArray).map(row => row.slice(0, MAX_COLUMNS)), limited: data.rows.length > MAX_ROWS || data.columns.length > MAX_COLUMNS, sql: true }];
@@ -45,11 +66,12 @@ export function datasets(data) {
   const tables = [];
   for (const [name, value] of Object.entries(data).slice(0, MAX_COLUMNS)) {
     if (!Array.isArray(value)) continue;
-    const rows = value.slice(0, MAX_ROWS).filter(object);
+    const receivedRows = value.slice(0, MAX_ROWS).filter(object);
+    const { rows, coverage } = tool === "get_observations" && name === "points" ? observationDisplay(receivedRows) : { rows: receivedRows };
     const keys = [...new Set(rows.flatMap(row => Object.keys(row).slice(0, MAX_COLUMNS)))];
     const displayKeys = keys.includes("epoch") && keys.some(key => ["time", "day", "date"].includes(key)) ? [...keys.filter(key => key !== "epoch"), "epoch"] : keys;
     const columns = displayKeys.slice(0, MAX_COLUMNS).map(key => ({ key, title: `${label(key)}${unit(key) ? ` (${unit(key)})` : ""}`, raw: key }));
-    tables.push({ name, columns, rows, limited: value.length > MAX_ROWS || keys.length > MAX_COLUMNS, sql: false });
+    tables.push({ name, columns, rows, coverage, limited: value.length > MAX_ROWS || keys.length > MAX_COLUMNS, sql: false });
   }
   return tables;
 }

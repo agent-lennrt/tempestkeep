@@ -17,9 +17,10 @@ export const observations = {
       wind_mph: rounded(3 + Math.max(0, Math.sin((i - 15) / 10)) * 6),
       gust_mph: rounded(6 + Math.max(0, Math.sin((i - 15) / 10)) * 9),
       rain_in: i >= 39 && i <= 42 ? 0.02 : 0,
+      rain_readings: 30,
       uv_max: rounded(Math.max(0, Math.sin((i - 12) * Math.PI / 26)) * (i < 40 ? 7 : 0)),
       solar_avg_wm2: rounded(Math.max(0, Math.sin((i - 12) * Math.PI / 26)) * (i < 40 ? 780 : 0)),
-      lightning_strikes: 0, obs: 30,
+      lightning_strikes: 0, lightning_readings: 30, obs: 30,
     };
   }),
 };

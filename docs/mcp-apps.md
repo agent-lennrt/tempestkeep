@@ -36,9 +36,15 @@ and `sync_archive` retain their ordinary MCP results and have no app controls.
 
 ## Read charts and tables
 
-Charts show supported weather series with a metric selector. Hover over bars
-or line series with up to 60 readings to see values. For larger line series,
-use the table for exact readings. Wind results include a 16-sector rose.
+Charts show supported weather series with a metric selector. Point or tap on a
+chart to inspect the nearest returned reading, including its full source time,
+timezone when supplied, metric, and units. The slider selects every displayed
+point, including dense series of up to 2,000 readings. Focus the slider and use
+arrow keys for adjacent readings, or Home and End for the first and last.
+Missing readings are labeled explicitly. Selection follows the plotted spacing
+and does not interpolate across gaps or fetch data. Changing the metric or
+replacing the result resets selection to the first reading.
+Wind results include a 16-sector rose with exact frequencies in the table.
 Dataset tabs separate collections
 such as hourly and daily forecasts. Tables provide text search, numeric-aware
 column sorting, and eight-row pages. These controls operate on the received
@@ -56,6 +62,13 @@ Missing readings remain distinct from measured zero. Labels and field units
 come from the tool result. Raw SQL retains SI units unless the query explicitly
 converts them. SQL column names and values remain in their original order, even
 when names repeat. The app does not infer units from arbitrary SQL column names.
+For observation series, `rain_readings` and `lightning_readings` count the samples
+that supplied each event measurement. A zero count displays the corresponding
+total as missing in charts, tables, and summaries. A positive count preserves a
+measured zero. If a count is below `obs`, the total covers only some samples.
+The view reports missing and partial buckets, and keeps their counts in the table.
+These counts describe samples, not continuous sensor uptime. Original tool
+results remain intact. Older results without counts retain their existing display.
 See the [query guide](querying.md) for date boundaries, aggregation, and incomplete
 sensor coverage.
 
