@@ -113,3 +113,18 @@ func TestWriteStatsCoolingTrend(t *testing.T) {
 		t.Errorf("expected the no-lightning line; got:\n%s", out)
 	}
 }
+
+func TestWriteStatsFlatTrend(t *testing.T) {
+	rep := statsReport{
+		cov: store.Coverage{Count: 2, MinEpoch: sql.NullInt64{Int64: 1700000000, Valid: true},
+			MaxEpoch: sql.NullInt64{Int64: 1731622400, Valid: true}},
+		trend: store.TempTrend{Years: 2, SlopePerDecadeF: new(0.0)},
+	}
+	var out strings.Builder
+	if err := writeStats(&out, rep); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out.String(), "+0.0 °F/decade (flat)") || strings.Contains(out.String(), "warming") || strings.Contains(out.String(), "R²=") {
+		t.Fatalf("flat trend was mislabeled: %s", out.String())
+	}
+}

@@ -122,6 +122,13 @@ and actual change, along with the normalized rate.
 mean wind speed, maximum gust and UV, and total rain and lightning per bucket.
 An hourly `gust_mph` is the largest stored gust in that bucket.
 
+Each series bucket also includes `rain_readings` and `lightning_readings`.
+These count non-missing samples for each event sensor. If a count is zero,
+its numeric total is unknown even though the compatible total field is zero.
+A positive count with a zero total is a measured zero. A count below `obs`
+means the total covers only some observations. MCP Apps shows unknown totals
+as missing values and warns about incomplete coverage.
+
 ## Coverage and missing readings
 
 Start an analysis with `archive_status`, then inspect the requested range.
@@ -133,7 +140,7 @@ while `COUNT(air_temp_c)` counts rows with a temperature reading. `AVG`, `MIN`,
 `MAX`, and `SUM` skip missing values. `SUM` returns `NULL` when there are no
 non-null input values.
 
-Some history totals use zero when no valid increments exist. Compare those
+Other history totals can use zero when no valid increments exist. Compare those
 totals with SQL reading counts for `rain_mm` or `strike_count`. `sensor_health`
 covers continuous sensors, not these interval counts. A returned zero alone
 does not prove that a working sensor recorded no rain or lightning.
@@ -155,9 +162,16 @@ can still contribute to a daily summary. Compare sample counts and covered
 dates before ranking days, months, or years.
 
 `climate_normals` describes the available archive. It does not establish a
-standard long-term climate baseline. `temperature_trend` fits the recorded
-series. Gaps, partial years, and changes to station placement can affect that
-fit. Report the available span and evidence before interpreting a trend.
+standard long-term climate baseline. `temperature_trend` fits one slope with a
+separate baseline for each calendar month. Each usable monthly mean has equal
+weight. The fit centers both time and temperature within that calendar month,
+so a month observed only once does not change the slope.
+
+The trend needs at least one calendar month repeated across years. Repeated
+constant temperatures produce a zero slope and no R². Otherwise R² describes
+the fit after seasonal baselines are removed. It does not measure statistical
+significance. Sparse months, gaps, and changes to station placement still limit
+interpretation. Report the available span and evidence before interpreting a trend.
 
 ## Worked tool calls
 

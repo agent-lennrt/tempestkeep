@@ -210,6 +210,8 @@ func writeStats(w io.Writer, r statsReport) error {
 		dir := "warming"
 		if *r.trend.SlopePerDecadeF < 0 {
 			dir = "cooling"
+		} else if *r.trend.SlopePerDecadeF == 0 {
+			dir = "flat"
 		}
 		r2 := ""
 		if r.trend.RSquared != nil {
