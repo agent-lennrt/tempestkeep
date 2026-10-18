@@ -501,7 +501,7 @@ func registerClimateTools(srv *mcp.Server, st *store.Store) {
 	addAppTool(srv, &mcp.Tool{
 		Name:        "pressure_trend",
 		Title:       "Barometric tendency",
-		Description: "Return the change in station pressure over a trailing window. The default is 3 hours. The accepted range is 1 second through 24 hours.",
+		Description: "Compare the latest station pressure with the nearest eligible earlier reading to the window start. Samples must be at least half the window apart. Return the actual span, change, and normalized three-hour rate. The default is 3 hours; the accepted range is 1 second through 24 hours.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true, OpenWorldHint: new(false)},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, args PressureTrendArgs) (*mcp.CallToolResult, PressureTrendOut, error) {
 		windowHours := args.WindowHours

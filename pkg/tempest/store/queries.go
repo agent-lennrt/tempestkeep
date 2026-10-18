@@ -64,6 +64,7 @@ var (
 	qryPressureRollup  = mustQuery("pressure_rollup.sql")
 	qrySensorHealth    = mustQuery("sensor_health.sql")
 	qryPressureAt      = mustQuery("pressure_at.sql")
+	qryPressureAfter   = mustQuery("pressure_after.sql")
 	qryRecordsExtremes = mustQuery("records_extremes.sql")
 	qryThisDay         = mustQuery("this_day.sql")
 	qryWindRoseSectors = mustQuery("wind_rose_sectors.sql")
